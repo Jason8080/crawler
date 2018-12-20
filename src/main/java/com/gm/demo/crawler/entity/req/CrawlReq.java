@@ -7,6 +7,7 @@ import lombok.Data;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author Jason
@@ -20,4 +21,7 @@ public class CrawlReq implements Serializable {
             regexp = "^(http|ftp|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&amp;:/~\\+#]*[\\w\\-\\@?^=%&amp;/~\\+#])?$"
     )
     private String url;
+
+    @ApiModelProperty("cookies")
+    private List<Cookies> cookies;
 }
