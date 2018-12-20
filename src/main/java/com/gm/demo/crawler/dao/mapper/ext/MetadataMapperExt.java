@@ -8,9 +8,12 @@ import org.apache.ibatis.annotations.Select;
 import java.util.List;
 
 /**
+ * The interface Metadata mapper ext.
+ *
  * @author Jason
  */
 public interface MetadataMapperExt {
+
     /**
      * 获取指定表元数据.
      *
@@ -19,6 +22,16 @@ public interface MetadataMapperExt {
      */
     @Select("SELECT * FROM `metadata` WHERE tab=#{tab}")
     List<Metadata> getTab(@Param("tab") String tab);
+
+    /**
+     * 获取指定元数据.
+     *
+     * @param tab   the tab
+     * @param field the field
+     * @return the metadata
+     */
+    @Select("SELECT * FROM `metadata` WHERE tab=#{tab} and field=#{field}")
+    Metadata getMetadata(@Param("tab") String tab, @Param("field") String field);
 
     /**
      * Drop tab.

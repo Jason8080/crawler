@@ -5,7 +5,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Null;
 import java.io.Serializable;
 
 /**
@@ -27,13 +30,13 @@ public class SaveMetadataReq implements Serializable {
     @Length(min = 2, max = 10, message = "字段名长度2-10")
     private String field;
 
-    @ApiModelProperty(value = "数据类型", example = "varchar", required = true)
-    @NotEmpty(message = "字段类型是空")
+    @ApiModelProperty(value = "数据类型", example = "varchar")
+//    @NotEmpty(message = "字段类型是空")
     @Length(min = 2, max = 10, message = "数据类型长度2-10")
     private String dataType;
 
-    @ApiModelProperty(value = "数据长度", example = "10", required = true)
-    @NotNull(message = "字段长度是空")
+    @ApiModelProperty(value = "数据长度", example = "10")
+//    @NotNull(message = "字段长度是空")
     @Min(value = 1, message = "数据长度小于1")
     @Max(value = 1000, message = "数据长度大于1000")
     private Integer len;

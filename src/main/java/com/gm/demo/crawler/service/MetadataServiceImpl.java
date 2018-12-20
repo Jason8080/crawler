@@ -62,6 +62,15 @@ public class MetadataServiceImpl {
     @Transactional(rollbackFor = Exception.class)
     public Integer save(SaveMetadataReq req) {
         Metadata metadata = Bean.toBean(req, Metadata.class);
+        // 查找该字段是否存在
+        Metadata oldMetadata = metadataMapperExt.getMetadata(req.getTab(), req.getField());
+        // 设置默认元数据信息
+        Metadata defMetadata = new Metadata();
+        defMetadata.setDataType("varchar");
+        defMetadata.setLen(10);
+        // 补全目标元数据信息
+        metadata = Bean.copy(Convert.toEmpty(oldMetadata, defMetadata), metadata);
+        // 查找该表所有元数据
         List<Metadata> data = metadataMapperExt.getTab(req.getTab());
         Map<String, Integer> map = data.stream().collect(Collectors.toMap(Metadata::getField, Metadata::getId));
         // 不存在表先创建
