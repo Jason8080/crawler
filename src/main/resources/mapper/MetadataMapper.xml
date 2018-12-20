@@ -4,12 +4,13 @@
   <resultMap id="BaseResultMap" type="com.gm.demo.crawler.dao.model.Metadata">
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="field" jdbcType="VARCHAR" property="field" />
-    <result column="len" jdbcType="INTEGER" property="len" />
     <result column="varchar" jdbcType="VARCHAR" property="varchar" />
+    <result column="len" jdbcType="INTEGER" property="len" />
+    <result column="comment" jdbcType="VARCHAR" property="comment" />
     <result column="tab" jdbcType="VARCHAR" property="tab" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, field, len, varchar, tab
+    id, field, varchar, len, comment, tab
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -22,12 +23,12 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.gm.demo.crawler.dao.model.Metadata">
-    insert into metadata (id, field, len, 
-      varchar, tab)
-    values (#{id,jdbcType=INTEGER}, #{field,jdbcType=VARCHAR}, #{len,jdbcType=INTEGER}, 
-      #{varchar,jdbcType=VARCHAR}, #{tab,jdbcType=VARCHAR})
+    insert into metadata (id, field, varchar, 
+      len, comment, tab)
+    values (#{id,jdbcType=INTEGER}, #{field,jdbcType=VARCHAR}, #{varchar,jdbcType=VARCHAR}, 
+      #{len,jdbcType=INTEGER}, #{comment,jdbcType=VARCHAR}, #{tab,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.gm.demo.crawler.dao.model.Metadata">
+  <insert id="insertSelective" parameterType="com.gm.demo.crawler.dao.model.Metadata">
     insert into metadata
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -36,11 +37,14 @@
       <if test="field != null">
         field,
       </if>
+      <if test="varchar != null">
+        varchar,
+      </if>
       <if test="len != null">
         len,
       </if>
-      <if test="varchar != null">
-        varchar,
+      <if test="comment != null">
+        comment,
       </if>
       <if test="tab != null">
         tab,
@@ -53,11 +57,14 @@
       <if test="field != null">
         #{field,jdbcType=VARCHAR},
       </if>
+      <if test="varchar != null">
+        #{varchar,jdbcType=VARCHAR},
+      </if>
       <if test="len != null">
         #{len,jdbcType=INTEGER},
       </if>
-      <if test="varchar != null">
-        #{varchar,jdbcType=VARCHAR},
+      <if test="comment != null">
+        #{comment,jdbcType=VARCHAR},
       </if>
       <if test="tab != null">
         #{tab,jdbcType=VARCHAR},
@@ -70,11 +77,14 @@
       <if test="field != null">
         field = #{field,jdbcType=VARCHAR},
       </if>
+      <if test="varchar != null">
+        varchar = #{varchar,jdbcType=VARCHAR},
+      </if>
       <if test="len != null">
         len = #{len,jdbcType=INTEGER},
       </if>
-      <if test="varchar != null">
-        varchar = #{varchar,jdbcType=VARCHAR},
+      <if test="comment != null">
+        comment = #{comment,jdbcType=VARCHAR},
       </if>
       <if test="tab != null">
         tab = #{tab,jdbcType=VARCHAR},
@@ -85,8 +95,9 @@
   <update id="updateByPrimaryKey" parameterType="com.gm.demo.crawler.dao.model.Metadata">
     update metadata
     set field = #{field,jdbcType=VARCHAR},
-      len = #{len,jdbcType=INTEGER},
       varchar = #{varchar,jdbcType=VARCHAR},
+      len = #{len,jdbcType=INTEGER},
+      comment = #{comment,jdbcType=VARCHAR},
       tab = #{tab,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>

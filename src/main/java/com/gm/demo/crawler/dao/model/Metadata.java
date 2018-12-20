@@ -7,9 +7,11 @@ public class Metadata implements Serializable {
 
     private String field;
 
+    private String varchar;
+
     private Integer len;
 
-    private String varchar;
+    private String comment;
 
     private String tab;
 
@@ -31,6 +33,14 @@ public class Metadata implements Serializable {
         this.field = field == null ? null : field.trim();
     }
 
+    public String getVarchar() {
+        return varchar;
+    }
+
+    public void setVarchar(String varchar) {
+        this.varchar = varchar == null ? null : varchar.trim();
+    }
+
     public Integer getLen() {
         return len;
     }
@@ -39,12 +49,12 @@ public class Metadata implements Serializable {
         this.len = len;
     }
 
-    public String getVarchar() {
-        return varchar;
+    public String getComment() {
+        return comment;
     }
 
-    public void setVarchar(String varchar) {
-        this.varchar = varchar == null ? null : varchar.trim();
+    public void setComment(String comment) {
+        this.comment = comment == null ? null : comment.trim();
     }
 
     public String getTab() {
@@ -63,8 +73,9 @@ public class Metadata implements Serializable {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", field=").append(field);
-        sb.append(", len=").append(len);
         sb.append(", varchar=").append(varchar);
+        sb.append(", len=").append(len);
+        sb.append(", comment=").append(comment);
         sb.append(", tab=").append(tab);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");

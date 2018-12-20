@@ -57,7 +57,15 @@ public interface TabMapper {
      *
      * @param metadata the metadata
      */
-    @Update("ALTER TABLE `${m.tab}` ADD COLUMN `${m.field}` ${m.varchar}(${m.len}) DEFAULT NULL COMMENT ${m.comment}")
+    @Update({"<script>",
+            "ALTER TABLE `${m.tab}`",
+            "ADD COLUMN `${m.field}`",
+            "${m.varchar}(${m.len})",
+            "DEFAULT NULL ",
+            "<if test='m.comment!=null and m.comment!=\"\"'>",
+                "COMMENT ${m.comment}",
+            "</if>",
+            "</script>"})
     void alterAdd(@Param("m") Metadata metadata);
 
     /**
@@ -70,7 +78,9 @@ public interface TabMapper {
             "ALTER TABLE `${m.tab}`",
             "CHANGE COLUMN `${oldField}` `${m.field}` ${m.varchar}(${m.len})",
             "DEFAULT NULL",
-            "COMMENT ${m.comment}",
+            "<if test='m.comment!=null and m.comment!=\"\"'>",
+                "COMMENT ${m.comment}",
+            "</if>",
             "</script>"})
     void alterChange(@Param("oldField") String oldField, @Param("m") Metadata metadata);
 
