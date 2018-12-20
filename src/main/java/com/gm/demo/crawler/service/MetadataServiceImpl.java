@@ -50,13 +50,13 @@ public class MetadataServiceImpl {
             tabMapper.createTab(req.getTab());
         }
         // 字段存在就更改
-        if (map.containsKey(req.getField())){
+        if (map.containsKey(req.getField()) || map.containsKey(req.getOldField())){
             // 更改表字段
             tabMapper.alterChange(Convert.toEmpty(req.getOldField(), req.getField()), metadata);
             // 更新元数据
-            metadata.setId(map.get(req.getField()));
+            metadata.setId(map.get(Convert.toEmpty(req.getOldField(), req.getField())));
             metadataMapper.updateByPrimaryKeySelective(metadata);
-        }else {
+        } else {
             // 添加表字段
             tabMapper.alterAdd(metadata);
             // 添加元数据

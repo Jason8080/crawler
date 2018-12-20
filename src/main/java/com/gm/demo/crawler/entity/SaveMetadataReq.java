@@ -30,7 +30,7 @@ public class SaveMetadataReq implements Serializable {
     @ApiModelProperty(value = "数据类型", example = "varchar", required = true)
     @NotEmpty(message = "字段类型是空")
     @Length(min = 2, max = 10, message = "数据类型长度2-10")
-    private String varchar;
+    private String dataType;
 
     @ApiModelProperty(value = "数据长度", example = "10", required = true)
     @NotNull(message = "字段长度是空")
@@ -39,7 +39,7 @@ public class SaveMetadataReq implements Serializable {
     private Integer len;
 
     @ApiModelProperty(value = "字段注释")
-    @Max(value = 100, message = "注释长度大于100")
+    @Length(max = 100, message = "注释长度大于100")
     private String comment;
 
     @ApiModelProperty(value = "表名", required = true)

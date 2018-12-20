@@ -7,7 +7,7 @@ public class Metadata implements Serializable {
 
     private String field;
 
-    private String varchar;
+    private String dataType;
 
     private Integer len;
 
@@ -33,12 +33,12 @@ public class Metadata implements Serializable {
         this.field = field == null ? null : field.trim();
     }
 
-    public String getVarchar() {
-        return varchar;
+    public String getDataType() {
+        return dataType;
     }
 
-    public void setVarchar(String varchar) {
-        this.varchar = varchar == null ? null : varchar.trim();
+    public void setDataType(String dataType) {
+        this.dataType = dataType == null ? null : dataType.trim();
     }
 
     public Integer getLen() {
@@ -73,7 +73,7 @@ public class Metadata implements Serializable {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", field=").append(field);
-        sb.append(", varchar=").append(varchar);
+        sb.append(", dataType=").append(dataType);
         sb.append(", len=").append(len);
         sb.append(", comment=").append(comment);
         sb.append(", tab=").append(tab);
