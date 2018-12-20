@@ -1,7 +1,7 @@
 package com.gm.demo.crawler.controller;
 
 import com.gm.demo.crawler.dao.model.Metadata;
-import com.gm.demo.crawler.entity.SaveMetadataReq;
+import com.gm.demo.crawler.entity.req.SaveMetadataReq;
 import com.gm.demo.crawler.service.MetadataServiceImpl;
 import com.gm.model.response.JsonResult;
 import io.swagger.annotations.Api;

@@ -1,4 +1,4 @@
-package com.gm.demo.crawler.entity;
+package com.gm.demo.crawler.entity.req;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

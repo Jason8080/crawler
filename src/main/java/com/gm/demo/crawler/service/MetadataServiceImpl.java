@@ -4,7 +4,7 @@ import com.gm.demo.crawler.dao.mapper.MetadataMapper;
 import com.gm.demo.crawler.dao.mapper.TabMapper;
 import com.gm.demo.crawler.dao.mapper.ext.MetadataMapperExt;
 import com.gm.demo.crawler.dao.model.Metadata;
-import com.gm.demo.crawler.entity.SaveMetadataReq;
+import com.gm.demo.crawler.entity.req.SaveMetadataReq;
 import com.gm.utils.base.Bean;
 import com.gm.utils.base.Bool;
 import com.gm.utils.base.Convert;
