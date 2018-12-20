@@ -7,10 +7,7 @@ import com.gm.model.response.JsonResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -27,8 +24,8 @@ public class MetadataController {
     MetadataServiceImpl metadataService;
 
 
-    @PostMapping("getTab/{tab}")
-    @ApiOperation(value = "获取表元数据", response = Metadata.class)
+    @GetMapping("getTab/{tab}")
+    @ApiOperation(value = "获取元数据", response = Metadata.class)
     public JsonResult<List<Metadata>> getTab(@PathVariable("tab") String tab) {
         return JsonResult.as(metadataService.getTab(tab));
     }
@@ -36,10 +33,12 @@ public class MetadataController {
     @PostMapping("save")
     @ApiOperation(value = "保存元数据", response = Integer.class)
     public JsonResult<Integer> getTab(@Valid SaveMetadataReq req) {
-        final List<Metadata> metadata = metadataService.getTab(req.getTab());
-        if (metadata.size() > 0) {
-            // 有表
-        }
-        return JsonResult.as(1);
+        return JsonResult.as(metadataService.save(req));
+    }
+
+    @PostMapping("dropTab/{tab}")
+    @ApiOperation(value = "删除元数据")
+    public JsonResult<Integer> dropTab(@PathVariable("tab") String tab) {
+        return JsonResult.as(metadataService.dropTab(tab));
     }
 }

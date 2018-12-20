@@ -1,12 +1,11 @@
 package com.gm.demo.crawler.dao.mapper;
 
 import com.gm.demo.crawler.dao.model.Metadata;
-import org.apache.ibatis.annotations.Select;
-
-import java.util.List;
 
 /**
  * The interface Metadata mapper.
+ *
+ * @author Jason
  */
 public interface MetadataMapper {
 
@@ -57,13 +56,4 @@ public interface MetadataMapper {
      * @return the int
      */
     int updateByPrimaryKey(Metadata record);
-
-    /**
-     * Gets tab.
-     *
-     * @param tab the tab
-     * @return the tab
-     */
-    @Select("select * from `metadata` where tab=#{tab}")
-    List<Metadata> getTab(String tab);
 }

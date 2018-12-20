@@ -3,7 +3,12 @@ package com.gm.demo.crawler.entity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.hibernate.validator.constraints.Length;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.Null;
 import java.io.Serializable;
 
 /**
@@ -13,15 +18,29 @@ import java.io.Serializable;
 @ApiModel("保存元数据请求实体")
 public class SaveMetadataReq implements Serializable {
     @ApiModelProperty(hidden = true)
+    @Null(message = "不能指定序列号")
     private Integer id;
 
+    @ApiModelProperty("旧字段名")
+    @Length(min = 2, max = 10, message = "字段名长度2-10")
+    private String oldField;
+
+    @ApiModelProperty(value = "新字段名", required = true)
+    @NotEmpty(message = "新字段名是空")
+    @Length(min = 2, max = 10, message = "字段名长度2-10")
     private String field;
 
+    @ApiModelProperty(value = "数据长度", example = "10")
+    @Min(value = 1, message = "数据长度小于1")
+    @Max(value = 1000, message = "数据长度大于1000")
     private Integer len;
 
-    @ApiModelProperty("数据类型")
+    @ApiModelProperty(value = "数据类型", example = "varchar")
+    @Length(min = 2, max = 10, message = "数据类型长度2-10")
     private String varchar;
 
-    @ApiModelProperty("表名")
+    @ApiModelProperty(value = "表名", required = true)
+    @NotEmpty(message = "表名是空")
+    @Length(min = 2, max = 10, message = "表名长度2-10")
     private String tab;
 }

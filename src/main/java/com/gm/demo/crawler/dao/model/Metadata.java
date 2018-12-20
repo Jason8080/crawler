@@ -9,7 +9,7 @@ public class Metadata implements Serializable {
 
     private Integer len;
 
-    private String datatype;
+    private String varchar;
 
     private String tab;
 
@@ -39,12 +39,12 @@ public class Metadata implements Serializable {
         this.len = len;
     }
 
-    public String getDatatype() {
-        return datatype;
+    public String getVarchar() {
+        return varchar;
     }
 
-    public void setDatatype(String datatype) {
-        this.datatype = datatype == null ? null : datatype.trim();
+    public void setVarchar(String varchar) {
+        this.varchar = varchar == null ? null : varchar.trim();
     }
 
     public String getTab() {
@@ -64,7 +64,7 @@ public class Metadata implements Serializable {
         sb.append(", id=").append(id);
         sb.append(", field=").append(field);
         sb.append(", len=").append(len);
-        sb.append(", datatype=").append(datatype);
+        sb.append(", varchar=").append(varchar);
         sb.append(", tab=").append(tab);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
