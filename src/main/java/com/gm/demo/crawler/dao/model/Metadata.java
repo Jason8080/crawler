@@ -11,7 +11,7 @@ public class Metadata implements Serializable {
 
     private String datatype;
 
-    private String table;
+    private String tab;
 
     private static final long serialVersionUID = 1L;
 
@@ -47,12 +47,12 @@ public class Metadata implements Serializable {
         this.datatype = datatype == null ? null : datatype.trim();
     }
 
-    public String getTable() {
-        return table;
+    public String getTab() {
+        return tab;
     }
 
-    public void setTable(String table) {
-        this.table = table == null ? null : table.trim();
+    public void setTab(String tab) {
+        this.tab = tab == null ? null : tab.trim();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class Metadata implements Serializable {
         sb.append(", field=").append(field);
         sb.append(", len=").append(len);
         sb.append(", datatype=").append(datatype);
-        sb.append(", table=").append(table);
+        sb.append(", tab=").append(tab);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

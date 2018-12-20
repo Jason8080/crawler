@@ -1,93 +1,93 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="com.gm.demo.crawler.dao.mapper.MetadataMapper" >
-  <resultMap id="BaseResultMap" type="com.gm.demo.crawler.dao.model.Metadata" >
-    <id column="id" property="id" jdbcType="INTEGER" />
-    <result column="field" property="field" jdbcType="VARCHAR" />
-    <result column="len" property="len" jdbcType="INTEGER" />
-    <result column="datatype" property="datatype" jdbcType="VARCHAR" />
-    <result column="table" property="table" jdbcType="VARCHAR" />
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gm.demo.crawler.dao.mapper.MetadataMapper">
+  <resultMap id="BaseResultMap" type="com.gm.demo.crawler.dao.model.Metadata">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="field" jdbcType="VARCHAR" property="field" />
+    <result column="len" jdbcType="INTEGER" property="len" />
+    <result column="datatype" jdbcType="VARCHAR" property="datatype" />
+    <result column="tab" jdbcType="VARCHAR" property="tab" />
   </resultMap>
-  <sql id="Base_Column_List" >
-    id, field, len, datatype, table
+  <sql id="Base_Column_List">
+    id, field, len, datatype, tab
   </sql>
-  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
     from metadata
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from metadata
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" parameterType="com.gm.demo.crawler.dao.model.Metadata" >
+  <insert id="insert" parameterType="com.gm.demo.crawler.dao.model.Metadata">
     insert into metadata (id, field, len, 
-      datatype, table)
+      datatype, tab)
     values (#{id,jdbcType=INTEGER}, #{field,jdbcType=VARCHAR}, #{len,jdbcType=INTEGER}, 
-      #{datatype,jdbcType=VARCHAR}, #{table,jdbcType=VARCHAR})
+      #{datatype,jdbcType=VARCHAR}, #{tab,jdbcType=VARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.gm.demo.crawler.dao.model.Metadata" >
+  <insert id="insertSelective" parameterType="com.gm.demo.crawler.dao.model.Metadata">
     insert into metadata
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
         id,
       </if>
-      <if test="field != null" >
+      <if test="field != null">
         field,
       </if>
-      <if test="len != null" >
+      <if test="len != null">
         len,
       </if>
-      <if test="datatype != null" >
+      <if test="datatype != null">
         datatype,
       </if>
-      <if test="table != null" >
-        table,
+      <if test="tab != null">
+        tab,
       </if>
     </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="id != null" >
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
         #{id,jdbcType=INTEGER},
       </if>
-      <if test="field != null" >
+      <if test="field != null">
         #{field,jdbcType=VARCHAR},
       </if>
-      <if test="len != null" >
+      <if test="len != null">
         #{len,jdbcType=INTEGER},
       </if>
-      <if test="datatype != null" >
+      <if test="datatype != null">
         #{datatype,jdbcType=VARCHAR},
       </if>
-      <if test="table != null" >
-        #{table,jdbcType=VARCHAR},
+      <if test="tab != null">
+        #{tab,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.gm.demo.crawler.dao.model.Metadata" >
+  <update id="updateByPrimaryKeySelective" parameterType="com.gm.demo.crawler.dao.model.Metadata">
     update metadata
-    <set >
-      <if test="field != null" >
+    <set>
+      <if test="field != null">
         field = #{field,jdbcType=VARCHAR},
       </if>
-      <if test="len != null" >
+      <if test="len != null">
         len = #{len,jdbcType=INTEGER},
       </if>
-      <if test="datatype != null" >
+      <if test="datatype != null">
         datatype = #{datatype,jdbcType=VARCHAR},
       </if>
-      <if test="table != null" >
-        table = #{table,jdbcType=VARCHAR},
+      <if test="tab != null">
+        tab = #{tab,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.gm.demo.crawler.dao.model.Metadata" >
+  <update id="updateByPrimaryKey" parameterType="com.gm.demo.crawler.dao.model.Metadata">
     update metadata
     set field = #{field,jdbcType=VARCHAR},
       len = #{len,jdbcType=INTEGER},
       datatype = #{datatype,jdbcType=VARCHAR},
-      table = #{table,jdbcType=VARCHAR}
+      tab = #{tab,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>
