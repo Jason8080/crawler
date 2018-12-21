@@ -3,8 +3,11 @@ package com.gm.demo.crawler.service;
 import com.gm.demo.crawler.dao.mapper.TabMapper;
 import com.gm.demo.crawler.dao.model.Metadata;
 import com.gm.demo.crawler.entity.req.SaveMetadataReq;
+import com.gm.help.base.Quick;
 import com.gm.utils.base.Assert;
+import com.gm.utils.base.Bool;
 import com.gm.utils.base.Convert;
+import com.gm.utils.base.ExceptionUtils;
 import com.gm.utils.ext.Json;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -48,7 +51,7 @@ public class MtServiceImpl {
             String key = next.getKey();
             // 是个集合
             if (key.contains(COMMENT_FIELD)) {
-                List<Map<String, String>> cs = (List<Map<String, String>>) next.getValue();
+                List<Map<String, Object>> cs = (List<Map<String, Object>>) next.getValue();
                 return handler(cs);
             }
         }
@@ -60,24 +63,27 @@ public class MtServiceImpl {
      *
      * @param maps 评论信息
      */
-    public Integer handler(List<Map<String, String>> maps) {
+    public Integer handler(List<Map<String, Object>> maps) {
+        if(maps.size()<=0){
+            ExceptionUtils.cast("没有数据了");
+        }
         List<Metadata> data = metadataService.getTab(MT_COMMENT_TAB);
         Map<String, Metadata> fields = data.stream()
                 .filter(x -> !ID.equalsIgnoreCase(x.getField()))
                 .collect(Collectors.toMap(Metadata::getField, x -> x));
-        for (Map<String, String> map : maps) {
+        for (Map<String, Object> map : maps) {
             // 去除系统需求字段
-            Iterator<Map.Entry<String, String>> it = map.entrySet().iterator();
+            Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
             while (it.hasNext()) {
-                Map.Entry<String, String> next = it.next();
+                Map.Entry<String, Object> next = it.next();
                 String key = next.getKey();
-                if (!fields.containsKey(key)) {
+                // 从字段将要存储值
+                String value = next.getValue()!=null?next.getValue().toString():null;
+                if (Bool.isNull(value) || !fields.containsKey(key)) {
                     it.remove();
                 } else {
                     // 此字段数据库信息
                     Metadata metadata = fields.get(key);
-                    // 从字段将要存储值
-                    String value = next.getValue();
                     // 检测长度
                     if (metadata.getLen() < Convert.toEmpty(value).length()) {
                         SaveMetadataReq req = new SaveMetadataReq();

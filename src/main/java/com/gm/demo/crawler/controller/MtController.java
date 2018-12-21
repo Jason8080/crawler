@@ -60,14 +60,12 @@ public class MtController {
             sum[0] += count;
             if (count < page.getPageSize()) {
                 // 收集到第gather条
-                Logger.debug("gather:   ".concat(sum[0].toString())).concat("\n").concat(url);
-                // 没有更多数据了结束
-                ExceptionUtils.cast();
+                Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
             } else {
-                Logger.debug("gather:   ".concat(count.toString())).concat("\n").concat(url);
+                Logger.debug("gather:   ".concat(count.toString()).concat("\n").concat(newUrl));
                 // 从这里开始
-                page.setNewStart(page.getOldStart() + page.getPageSize() + 1);
             }
+            page.setNewStart(page.getOldStart() + page.getPageSize() + 1);
         });
         return JsonResult.as(sum[0]);
     }
