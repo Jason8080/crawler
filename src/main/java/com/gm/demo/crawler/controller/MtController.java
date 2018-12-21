@@ -61,10 +61,12 @@ public class MtController {
             if (count < page.getPageSize()) {
                 // 收集到第gather条
                 Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
+                ExceptionUtils.cast();
             } else {
-                Logger.debug("gather:   ".concat(count.toString()).concat("\n").concat(newUrl));
-                // 从这里开始
+                // 收集到第gather条
+                Logger.debug("gather:   ".concat(page.newStart.toString()).concat("\n").concat(newUrl));
             }
+            // 从这里开始
             page.setNewStart(page.getOldStart() + page.getPageSize() + 1);
             page.setOldStart(page.getOldStart() + page.getPageSize());
         });
