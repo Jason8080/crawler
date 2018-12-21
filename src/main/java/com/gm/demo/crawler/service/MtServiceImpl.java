@@ -4,6 +4,7 @@ import com.gm.demo.crawler.dao.mapper.TabMapper;
 import com.gm.demo.crawler.dao.model.Metadata;
 import com.gm.demo.crawler.entity.req.SaveMetadataReq;
 import com.gm.help.base.Quick;
+import com.gm.strong.Str;
 import com.gm.utils.base.Assert;
 import com.gm.utils.base.Bool;
 import com.gm.utils.base.Convert;
@@ -78,7 +79,12 @@ public class MtServiceImpl {
                 Map.Entry<String, Object> next = it.next();
                 String key = next.getKey();
                 // 从字段将要存储值
-                String value = next.getValue()!=null?next.getValue().toString():null;
+                String value = next.getValue()!=null?next.getValue().toString():"";
+                if(new Str(value).contains("\'","\"")){
+                    value = value.replace("\'","`");
+                    value = value.replace("\"","`");
+                    map.put(key, value);
+                }
                 if (Bool.isNull(value) || !fields.containsKey(key)) {
                     it.remove();
                 } else {

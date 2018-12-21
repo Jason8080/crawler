@@ -66,6 +66,7 @@ public class MtController {
                 // 从这里开始
             }
             page.setNewStart(page.getOldStart() + page.getPageSize() + 1);
+            page.setOldStart(page.getOldStart() + page.getPageSize());
         });
         return JsonResult.as(sum[0]);
     }
