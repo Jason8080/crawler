@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -24,6 +26,11 @@ import java.util.stream.Collectors;
  */
 @Service
 public class MetadataServiceImpl {
+
+    /**
+     * The constant ID.
+     */
+    public static final String ID = "id";
 
     /**
      * The Tab mapper.
@@ -57,10 +64,10 @@ public class MetadataServiceImpl {
      * 保存元数据
      *
      * @param req the req
-     * @return integer
+     * @return integer integer
      */
     @Transactional(rollbackFor = Exception.class)
-    public Integer save(SaveMetadataReq req) {
+    public Integer save(@Valid SaveMetadataReq req) {
         Metadata metadata = Bean.toBean(req, Metadata.class);
         // 查找该字段是否存在
         Metadata oldMetadata = metadataMapperExt.getMetadata(req.getTab(), req.getField());
@@ -78,7 +85,7 @@ public class MetadataServiceImpl {
             createTab(req);
         }
         // 字段存在就更改
-        if (map.containsKey(req.getField()) || map.containsKey(req.getOldField())){
+        if (map.containsKey(req.getField()) || map.containsKey(req.getOldField()) || ID.equalsIgnoreCase(req.getField())){
             // 更改表字段
             tabMapper.alterChange(Convert.toEmpty(req.getOldField(), req.getField()), metadata);
             // 更新元数据
@@ -97,9 +104,10 @@ public class MetadataServiceImpl {
      * 创建表.
      *
      * @param req the req
+     * @return the integer
      */
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
-    public void createTab(SaveMetadataReq req) {
+    public Integer createTab(SaveMetadataReq req) {
         Metadata id = new Metadata();
         id.setField("id");
         id.setDataType("int");
@@ -108,18 +116,31 @@ public class MetadataServiceImpl {
         id.setTab(req.getTab());
         metadataMapper.insertSelective(id);
         tabMapper.createTab(req.getTab());
+        return id.getId();
     }
 
     /**
      * 删除表
      *
      * @param tab the tab
-     * @return boolean
+     * @return boolean boolean
      */
     @Transactional(rollbackFor = Exception.class)
     public Boolean dropTab(String tab) {
         metadataMapperExt.dropTab(tab);
         tabMapper.dropTab(tab);
         return true;
+    }
+
+    /**
+     * 保存表数据.
+     *
+     * @param tab    the tab
+     * @param fields the fields
+     * @param maps   the maps
+     * @return the integer
+     */
+    public Integer save(String tab, Collection<String> fields, Map<String, String>... maps) {
+        return tabMapper.save(tab, fields, maps);
     }
 }

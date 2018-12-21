@@ -7,7 +7,7 @@ import lombok.Data;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import java.io.Serializable;
-import java.util.List;
+import java.util.Map;
 
 /**
  * @author Jason
@@ -22,6 +22,8 @@ public class CrawlReq implements Serializable {
     )
     private String url;
 
-    @ApiModelProperty("cookies")
-    private List<Cookies> cookies;
+    @ApiModelProperty("请求头")
+    private Map<String, String> headers;
+    @ApiModelProperty("请求参")
+    private Map<String, Object> params;
 }

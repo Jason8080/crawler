@@ -1,9 +1,13 @@
 package com.gm.demo.crawler.dao.mapper;
 
 import com.gm.demo.crawler.dao.model.Metadata;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
+
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * The interface Tab mapper.
@@ -63,7 +67,7 @@ public interface TabMapper {
             "${m.dataType}(${m.len})",
             "DEFAULT NULL ",
             "<if test='m.comment!=null and m.comment!=\"\"'>",
-                "COMMENT '${m.comment}'",
+            "COMMENT '${m.comment}'",
             "</if>",
             "</script>"})
     void alterAdd(@Param("m") Metadata metadata);
@@ -79,7 +83,7 @@ public interface TabMapper {
             "CHANGE COLUMN `${oldField}` `${m.field}` ${m.dataType}(${m.len})",
             "DEFAULT NULL",
             "<if test='m.comment!=null and m.comment!=\"\"'>",
-                "COMMENT '${m.comment}'",
+            "COMMENT '${m.comment}'",
             "</if>",
             "</script>"})
     void alterChange(@Param("oldField") String oldField, @Param("m") Metadata metadata);
@@ -91,4 +95,30 @@ public interface TabMapper {
      */
     @Update("ALTER TABLE `${m.tab}` DROP COLUMN `${m.field}`")
     void alterDrop(@Param("m") Metadata metadata);
+
+    /**
+     * 保存表数据.
+     *
+     * @param tab    the tab
+     * @param fields the fields
+     * @param maps   the maps
+     * @return the integer
+     */
+    @Insert({"<script>",
+            "insert into `${tab}` ",
+            "<foreach collection ='fields' item='field' separator=',' open='(' close=')'>",
+                "`${field}`",
+            "</foreach>",
+            "values",
+            "<trim>",
+                "<foreach collection ='maps' item='map' separator=','>",
+                    "<foreach collection ='map.keys' item='key' separator=',' open='(' close=')'>",
+                            "'${map[key]}'",
+                    "</foreach>",
+                "</foreach>",
+            "</trim>",
+            "</script>"})
+    Integer save(@Param("tab") String tab,
+                 @Param("fields") Collection<String> fields,
+                 @Param("maps") Map<String, String>... maps);
 }

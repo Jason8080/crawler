@@ -21,5 +21,5 @@ public class Cookies implements Serializable {
     @ApiModelProperty(value = "域", example = "127.0.0.1")
     private String domain;
     @ApiModelProperty(value = "版本", example = "0")
-    private Integer version;
+    private Integer version = 0;
 }
