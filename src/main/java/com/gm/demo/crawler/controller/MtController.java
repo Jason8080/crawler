@@ -37,18 +37,18 @@ public class MtController {
     @PostMapping("entry")
     @ApiOperation(value = "释放一只爬虫")
     public JsonResult entry(@RequestBody @Valid CrawlReq req) {
-        String url = req.getUrl();
+        final String url = req.getUrl();
         Integer start = Integer.parseInt(Web.getParam(url, offset));
         Integer size = Integer.parseInt(Web.getParam(url, pageSize));
         P page = new P(start, 0, size);
         // 统计本次爬取总记录数
         Integer[] sum = {0};
         Quick.echo(x -> {
-            url.replace(
-                    offset.concat("=").concat(page.oldStart.toString()),
+            String newUrl = url.replace(
+                    offset.concat("=0"),
                     offset.concat("=").concat(page.newStart.toString())
             );
-            HttpResult result = Http.doGet(url, req.getHeaders(), req.getParams());
+            HttpResult result = Http.doGet(newUrl, req.getHeaders(), req.getParams());
             if (!JsonResult.SUCCESS.equals(result.getStatus())) {
                 result = Http.doPost(req.getUrl(), req.getHeaders(), req.getParams());
                 if (!JsonResult.SUCCESS.equals(result.getStatus())) {
@@ -66,7 +66,7 @@ public class MtController {
             } else {
                 Logger.debug("finish:   ".concat(url).concat("   \ngather:    ").concat(count.toString()));
                 // 从这里开始
-                page.setNewStart(page.getOldStart() + page.getPageSize());
+                page.setNewStart(page.getOldStart() + page.getPageSize() + 1);
             }
         });
         return JsonResult.as(sum[0]);
