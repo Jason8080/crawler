@@ -86,7 +86,7 @@ public class MetadataServiceImpl {
             createTab(req);
         }
         // 字段存在就更改
-        if (map.containsKey(req.getField()) || map.containsKey(req.getOldField()) || ID.equalsIgnoreCase(req.getField())){
+        if (map.containsKey(req.getField()) || map.containsKey(req.getOldField()) || ID.equalsIgnoreCase(req.getField())) {
             // 更改表字段
             tabMapper.alterChange(Convert.toEmpty(req.getOldField(), req.getField()), metadata);
             // 更新元数据

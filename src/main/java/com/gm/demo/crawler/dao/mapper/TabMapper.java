@@ -145,4 +145,28 @@ public interface TabMapper {
                  @Param("fields") Collection<String> fields,
                  @Param("maps") Map<String, String>... maps);
 
+    /**
+     * 查找重复记录数.
+     *
+     *
+     * @param tab
+     * @param fields  the fields
+     * @param maps    the maps
+     * @return the long
+     */
+    @Select({"<script>",
+            "select count(1) from `${tab}` ",
+            "<where>",
+                "<trim>",
+                    "<foreach collection ='maps' item='map' separator='or'>",
+                        "<foreach collection ='fields' item='field' separator='and' open='(' close=')'>",
+                            "${field} = '${map[field]}'",
+                        "</foreach>",
+                    "</foreach>",
+                "</trim>",
+            "</where>",
+            "</script>"})
+    Integer filters(@Param("tab") String tab,
+                    @Param("fields") Collection<String> fields,
+                    @Param("maps") Map<String, String>... maps);
 }

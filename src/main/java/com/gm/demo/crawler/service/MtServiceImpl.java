@@ -1,5 +1,6 @@
 package com.gm.demo.crawler.service;
 
+import com.gm.demo.crawler.dao.mapper.TabMapper;
 import com.gm.demo.crawler.dao.model.Metadata;
 import com.gm.demo.crawler.entity.req.SaveMetadataReq;
 import com.gm.utils.base.Assert;
@@ -19,9 +20,12 @@ public class MtServiceImpl {
 
     public static final String ID = "id";
     public static final String DATA_FIELD = "data";
+    public static final String USERNAME_FIELD = "userName";
     public static final String COMMENT_FIELD = "comment";
     public static final String MT_COMMENT_TAB = "mt_comment";
 
+    @Autowired
+    TabMapper tabMapper;
     @Autowired
     MetadataServiceImpl metadataService;
 
@@ -35,7 +39,7 @@ public class MtServiceImpl {
         // 获取返回的Json对象
         Map<String, Object> map = Json.toMap(result);
         // 美团的Json数据放在data里
-        Object data = Assert.isNull(map.get(DATA_FIELD), String.format("美团数据是空,完整响应\n%s",result));
+        Object data = Assert.isNull(map.get(DATA_FIELD), String.format("美团数据是空,完整响应\n%s", result));
         map = Json.o2o(data, Map.class);
         // 遍历查找评论信息
         Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
@@ -84,6 +88,11 @@ public class MtServiceImpl {
                     }
                 }
             }
+        }
+        Integer count = tabMapper.filters(MT_COMMENT_TAB, Arrays.asList(USERNAME_FIELD, COMMENT_FIELD), maps.toArray(new HashMap[0]));
+        // 重复不再保存
+        if (count > 0) {
+            return 0;
         }
         // 存储系统需求信息
         return metadataService.save(MT_COMMENT_TAB, fields.keySet(), maps.toArray(new HashMap[0]));
