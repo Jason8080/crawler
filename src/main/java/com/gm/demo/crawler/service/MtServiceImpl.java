@@ -77,7 +77,8 @@ public class MtServiceImpl {
                     // 检测长度
                     if (metadata.getLen() < Convert.toEmpty(value).length()) {
                         SaveMetadataReq req = new SaveMetadataReq();
-                        req.setId(metadata.getId());
+                        req.setTab(MT_COMMENT_TAB);
+                        req.setField(metadata.getField());
                         req.setLen(value.length() + 10);
                         metadataService.save(req);
                     }
