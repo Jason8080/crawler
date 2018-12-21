@@ -2,6 +2,7 @@ package com.gm.demo.crawler.service;
 
 import com.gm.demo.crawler.dao.model.Metadata;
 import com.gm.demo.crawler.entity.req.SaveMetadataReq;
+import com.gm.utils.base.Assert;
 import com.gm.utils.base.Convert;
 import com.gm.utils.ext.Json;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,11 +31,11 @@ public class MtServiceImpl {
      * @param result the result
      * @return the list
      */
-    public List handler(String result) {
+    public Integer handler(String result) {
         // 获取返回的Json对象
         Map<String, Object> map = Json.toMap(result);
         // 美团的Json数据放在data里
-        Object data = map.get(DATA_FIELD);
+        Object data = Assert.isNull(map.get(DATA_FIELD), String.format("美团数据是空,完整响应\n%s",result));
         map = Json.o2o(data, Map.class);
         // 遍历查找评论信息
         Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
@@ -44,11 +45,10 @@ public class MtServiceImpl {
             // 是个集合
             if (key.contains(COMMENT_FIELD)) {
                 List<Map<String, String>> cs = (List<Map<String, String>>) next.getValue();
-                handler(cs);
-                return cs;
+                return handler(cs);
             }
         }
-        return Collections.emptyList();
+        return 0;
     }
 
     /**
@@ -56,7 +56,7 @@ public class MtServiceImpl {
      *
      * @param maps 评论信息
      */
-    public void handler(List<Map<String, String>> maps) {
+    public Integer handler(List<Map<String, String>> maps) {
         List<Metadata> data = metadataService.getTab(MT_COMMENT_TAB);
         Map<String, Metadata> fields = data.stream()
                 .filter(x -> !ID.equalsIgnoreCase(x.getField()))
@@ -85,6 +85,6 @@ public class MtServiceImpl {
             }
         }
         // 存储系统需求信息
-        metadataService.save(MT_COMMENT_TAB, fields.keySet(), maps.toArray(new HashMap[0]));
+        return metadataService.save(MT_COMMENT_TAB, fields.keySet(), maps.toArray(new HashMap[0]));
     }
 }

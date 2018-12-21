@@ -4,6 +4,7 @@ import com.gm.demo.crawler.dao.mapper.MetadataMapper;
 import com.gm.demo.crawler.dao.mapper.TabMapper;
 import com.gm.demo.crawler.dao.mapper.ext.MetadataMapperExt;
 import com.gm.demo.crawler.dao.model.Metadata;
+import com.gm.demo.crawler.entity.req.ModifyMetadataReq;
 import com.gm.demo.crawler.entity.req.SaveMetadataReq;
 import com.gm.utils.base.Bean;
 import com.gm.utils.base.Bool;
@@ -98,6 +99,12 @@ public class MetadataServiceImpl {
             metadataMapper.insertSelective(metadata);
         }
         return metadata.getId();
+    }
+
+    public Boolean modify(ModifyMetadataReq req) {
+        Metadata metadata = Bean.toBean(req, Metadata.class);
+        tabMapper.alterModify(metadata);
+        return true;
     }
 
     /**

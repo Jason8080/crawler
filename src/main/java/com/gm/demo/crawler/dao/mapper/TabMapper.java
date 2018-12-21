@@ -67,7 +67,7 @@ public interface TabMapper {
             "${m.dataType}(${m.len})",
             "DEFAULT NULL ",
             "<if test='m.comment!=null and m.comment!=\"\"'>",
-            "COMMENT '${m.comment}'",
+                "COMMENT '${m.comment}'",
             "</if>",
             "</script>"})
     void alterAdd(@Param("m") Metadata metadata);
@@ -83,10 +83,28 @@ public interface TabMapper {
             "CHANGE COLUMN `${oldField}` `${m.field}` ${m.dataType}(${m.len})",
             "DEFAULT NULL",
             "<if test='m.comment!=null and m.comment!=\"\"'>",
-            "COMMENT '${m.comment}'",
+                "COMMENT '${m.comment}'",
             "</if>",
             "</script>"})
     void alterChange(@Param("oldField") String oldField, @Param("m") Metadata metadata);
+
+    /**
+     * 更改表字段.
+     *
+     * @param metadata the metadata
+     */
+    @Update({"<script>",
+            "ALTER TABLE `${m.tab}`",
+            "MODIFY COLUMN `${m.field}` ${m.dataType}(${m.len})",
+            "<if test='m.dataType==\"text\"'>",
+                "CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+            "</if>",
+            "DEFAULT NULL",
+            "<if test='m.comment!=null and m.comment!=\"\"'>",
+                "COMMENT '${m.comment}'",
+            "</if>",
+            "</script>"})
+    void alterModify(@Param("m") Metadata metadata);
 
     /**
      * 删除表字段.
@@ -121,4 +139,5 @@ public interface TabMapper {
     Integer save(@Param("tab") String tab,
                  @Param("fields") Collection<String> fields,
                  @Param("maps") Map<String, String>... maps);
+
 }

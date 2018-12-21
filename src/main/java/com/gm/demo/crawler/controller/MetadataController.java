@@ -1,6 +1,7 @@
 package com.gm.demo.crawler.controller;
 
 import com.gm.demo.crawler.dao.model.Metadata;
+import com.gm.demo.crawler.entity.req.ModifyMetadataReq;
 import com.gm.demo.crawler.entity.req.SaveMetadataReq;
 import com.gm.demo.crawler.service.MetadataServiceImpl;
 import com.gm.model.response.JsonResult;
@@ -32,8 +33,14 @@ public class MetadataController {
 
     @PostMapping("save")
     @ApiOperation(value = "保存元数据", response = Integer.class)
-    public JsonResult<Integer> getTab(@Valid SaveMetadataReq req) {
+    public JsonResult<Integer> save(@Valid SaveMetadataReq req) {
         return JsonResult.as(metadataService.save(req));
+    }
+
+    @PostMapping("modify")
+    @ApiOperation(value = "更改元数据", response = Integer.class)
+    public JsonResult<Integer> modify(@Valid ModifyMetadataReq req) {
+        return JsonResult.as(metadataService.modify(req));
     }
 
     @PostMapping("dropTab/{tab}")
