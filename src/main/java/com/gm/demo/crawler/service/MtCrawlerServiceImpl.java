@@ -27,6 +27,7 @@ public class MtCrawlerServiceImpl {
     public static final String ID = "id";
     public static final String IS_CRAWL = "isCrawl";
     public static final String[] DEFAULT__FIELD = {ID, IS_CRAWL};
+    public static final String[] EXCLUDE__FIELD = {"tags"};
     public static final String DATA_FIELD = "data";
     public static final String USERNAME_FIELD = "username";
     public static final String COMMENT_FIELD = "comment";
@@ -47,12 +48,12 @@ public class MtCrawlerServiceImpl {
      * @return
      */
     private Map<String, Object> getStringObjectMap(String result) {
-        // 获取返回的Json对象
-        Map<String, Object> map = Json.toMap(result);
+        // 获取返回的Json对象｛全部小写｝
+        Map<String, Object> map = Json.toMap(result.toLowerCase());
         // 美团的Json数据放在data里
         Object data = map.get(DATA_FIELD);
         if (Bool.isNull(data)) {
-            ExceptionUtils.cast(Logger.error("美团数据是空,完整响应"));
+            ExceptionUtils.cast(Logger.error("美团数据是空,可能需要完善访问要求"));
         }
         map = Json.o2o(data, Map.class);
         return map;
@@ -90,7 +91,7 @@ public class MtCrawlerServiceImpl {
         while (it.hasNext()) {
             Map.Entry<String, Object> next = it.next();
             // 是个集合
-            if (next.getValue() instanceof List) {
+            if (next.getValue() instanceof List && !new Str(EXCLUDE__FIELD).contains(next.getKey())) {
                 List<Map<String, Object>> cs = (List<Map<String, Object>>) next.getValue();
                 return handler(MT_COMMENT_TAB, cs, COMMENT_FIELD, USERNAME_FIELD);
             }
@@ -123,6 +124,8 @@ public class MtCrawlerServiceImpl {
             }
             checkFields(tab, fields, map);
         }
+        // 去除特殊字符
+        metadataService.replace(maps, "`", "\'", "\"");
         // 去重
         metadataService.distinct(tab, maps, filters);
         // 存储系统需求信息
@@ -143,11 +146,6 @@ public class MtCrawlerServiceImpl {
             String key = next.getKey();
             // 从字段将要存储值
             String value = next.getValue() != null ? next.getValue().toString() : "";
-            if (new Str(value).contains("\'", "\"")) {
-                value = value.replace("\'", "`");
-                value = value.replace("\"", "`");
-                map.put(key, value.trim());
-            }
             if (fields.containsKey(key)) {
                 // 此字段数据信息
                 Metadata metadata = fields.get(key);

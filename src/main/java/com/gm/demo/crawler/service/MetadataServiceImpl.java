@@ -146,7 +146,7 @@ public class MetadataServiceImpl {
      * @return the integer
      */
     public Integer save(String tab, Collection<String> fields, Map<String, String>... maps) {
-        if (maps.length>0){
+        if (maps.length > 0) {
             return tabMapper.save(tab, fields, maps);
         }
         return 0;
@@ -161,7 +161,7 @@ public class MetadataServiceImpl {
      */
     public void distinct(String tab, List<Map<String, Object>> maps, String... filters) {
         List<Map<String, Object>> exists = tabMapper.filters(tab, Arrays.asList(filters), maps.toArray(new HashMap[0]));
-        for (int i=0; i<maps.size(); i++) {
+        for (int i = 0; i < maps.size(); i++) {
             for (Map<String, Object> exist : exists) {
                 Map<String, Object> map = maps.get(i);
                 // 默认过滤字段值都相同
@@ -169,15 +169,38 @@ public class MetadataServiceImpl {
                 for (String field : filters) {
                     Object mapVal = map.get(field);
                     Object existVal = exist.get(field);
-                    if(!Bool.haveNull(mapVal, existVal) && !mapVal.toString().equals(existVal.toString())){
+                    if (!Bool.haveNull(mapVal, existVal) && !mapVal.toString().equals(existVal.toString())) {
                         containAll = false;
                     }
                 }
-                if(containAll){
+                if (containAll) {
                     maps.remove(i--);
                     break;
                 }
             }
         }
+    }
+
+    /**
+     * 替换特俗字符.
+     *
+     * @param maps    the maps
+     * @param symbol  the symbol
+     * @param filters the filters
+     */
+    public void replace(List<Map<String, Object>> maps, String symbol, CharSequence... filters) {
+        maps.stream().forEach(x -> {
+            Iterator<Map.Entry<String, Object>> it = x.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry<String, Object> next = it.next();
+                Object value = next.getValue();
+                if (value instanceof String) {
+                    for (CharSequence field : filters) {
+                        value = value.toString().replace(field, symbol);
+                    }
+                    x.put(next.getKey(), value);
+                }
+            }
+        });
     }
 }
