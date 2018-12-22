@@ -30,6 +30,7 @@ import java.util.Map;
 public class MtController {
 
     public static final String offset = "offset";
+    public static final String pageNo = "page";
     public static final String pageSize = "pageSize";
 
     @Autowired
@@ -38,18 +39,60 @@ public class MtController {
     @PostMapping("entry")
     @ApiOperation(value = "释放一只爬虫")
     public JsonResult entry(@RequestBody @Valid CrawlReq req) {
-        // 统计本次爬取总记录数
-        Integer total = 0;
-        // 分页爬取数据
-        total += pages(req.getUrl(), req.getHeaders(), req.getParams());
+        Integer total = merchantPages(req.getUrl(), req.getHeaders(), req.getParams());
         return JsonResult.as(total);
     }
 
-    private Integer pages(final String url, Map<String, String> headers, Map<String, Object> params) {
+    /**
+     * 分页爬取商家数据
+     *
+     * @param url
+     * @param headers
+     * @param params
+     * @return
+     */
+    private Integer merchantPages(final String url, Map<String, String> headers, Map<String, Object> params) {
+        Integer[] sum = {0};
+        Integer no = Integer.parseInt(Web.getParam(url, pageNo));
+        P page = new P(no);
+        Quick.echo(x -> {
+            String newUrl = url.replace(
+                    pageNo.concat("=1"),
+                    pageNo.concat("=").concat(page.newPageNo.toString())
+            );
+            HttpResult result = Http.doGet(newUrl, headers, params);
+            if (!JsonResult.SUCCESS.equals(result.getStatus())) {
+                result = Http.doPost(newUrl, headers, params);
+                if (!JsonResult.SUCCESS.equals(result.getStatus())) {
+                    JsonResult.unsuccessful(new String(result.getResult()));
+                }
+            }
+            String json = new String(result.getResult());
+            Integer count = mtService.handlerMerchant(json);
+            sum[0] += count;
+            Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
+            if (count <= 0) {
+                ExceptionUtils.cast();
+            }
+            // 从这里开始
+            page.setNewPageNo(page.newPageNo + 1);
+        });
+        return sum[0];
+    }
+
+    /**
+     * 分页爬取评论数据
+     *
+     * @param url
+     * @param headers
+     * @param params
+     * @return
+     */
+    private Integer commentPages(final String url, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
         Integer start = Integer.parseInt(Web.getParam(url, offset));
         Integer size = Integer.parseInt(Web.getParam(url, pageSize));
-        P page = new P(start, 0, size);
+        P page = new P(start, size);
         Quick.echo(x -> {
             String newUrl = url.replace(
                     offset.concat("=0"),
@@ -63,19 +106,14 @@ public class MtController {
                 }
             }
             String json = new String(result.getResult());
-            Integer count = mtService.handler(json);
+            Integer count = mtService.handlerComment(json);
             sum[0] += count;
+            Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
             if (count < page.getPageSize()) {
-                // 收集到第gather条
-                Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
                 ExceptionUtils.cast();
-            } else {
-                // 收集到第gather条
-                Logger.debug("gather:   ".concat(page.newStart.toString()).concat("\n").concat(newUrl));
             }
             // 从这里开始
-            page.setNewStart(page.getOldStart() + page.getPageSize() + 1);
-            page.setOldStart(page.getOldStart() + page.getPageSize());
+            page.setNewStart(page.newStart + page.pageSize);
         });
         return sum[0];
     }
@@ -85,12 +123,15 @@ public class MtController {
      */
     @Data
     static class P {
-        private Integer oldStart;
         private Integer newStart;
+        private Integer newPageNo;
         private Integer pageSize;
 
-        public P(Integer oldStart, Integer newStart, Integer pageSize) {
-            this.oldStart = oldStart;
+        public P(Integer newPageNo) {
+            this.newPageNo = newPageNo;
+        }
+
+        public P(Integer newStart, Integer pageSize) {
             this.newStart = newStart;
             this.pageSize = pageSize;
         }

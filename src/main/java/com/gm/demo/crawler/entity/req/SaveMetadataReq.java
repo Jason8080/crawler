@@ -22,21 +22,19 @@ public class SaveMetadataReq implements Serializable {
     private Integer id;
 
     @ApiModelProperty("旧字段名")
-    @Length(min = 2, max = 10, message = "字段名长度2-10")
+    @Length(min = 2, max = 20, message = "字段名长度2-20")
     private String oldField;
 
     @ApiModelProperty(value = "新字段名", required = true)
     @NotEmpty(message = "新字段名是空")
-    @Length(min = 2, max = 10, message = "字段名长度2-10")
+    @Length(min = 2, max = 20, message = "字段名长度2-20")
     private String field;
 
     @ApiModelProperty(value = "数据类型", example = "varchar")
-//    @NotEmpty(message = "字段类型是空")
-    @Length(min = 2, max = 10, message = "数据类型长度2-10")
+    @Length(min = 2, max = 20, message = "数据类型长度2-20")
     private String dataType;
 
-    @ApiModelProperty(value = "数据长度", example = "10")
-//    @NotNull(message = "字段长度是空")
+    @ApiModelProperty(value = "数据长度")
     @Min(value = 1, message = "数据长度小于1")
     @Max(value = 1000, message = "数据长度大于1000")
     private Integer len;
@@ -47,6 +45,6 @@ public class SaveMetadataReq implements Serializable {
 
     @ApiModelProperty(value = "表名", required = true)
     @NotEmpty(message = "表名是空")
-    @Length(min = 2, max = 10, message = "表名长度2-10")
+    @Length(min = 2, max = 20, message = "表名长度2-20")
     private String tab;
 }
