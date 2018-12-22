@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.Map;
 
 /**
  * @author Jason
@@ -37,20 +38,26 @@ public class MtController {
     @PostMapping("entry")
     @ApiOperation(value = "释放一只爬虫")
     public JsonResult entry(@RequestBody @Valid CrawlReq req) {
-        final String url = req.getUrl();
+        // 统计本次爬取总记录数
+        Integer total = 0;
+        // 分页爬取数据
+        total += pages(req.getUrl(), req.getHeaders(), req.getParams());
+        return JsonResult.as(total);
+    }
+
+    private Integer pages(final String url, Map<String, String> headers, Map<String, Object> params) {
+        Integer[] sum = {0};
         Integer start = Integer.parseInt(Web.getParam(url, offset));
         Integer size = Integer.parseInt(Web.getParam(url, pageSize));
         P page = new P(start, 0, size);
-        // 统计本次爬取总记录数
-        Integer[] sum = {0};
         Quick.echo(x -> {
             String newUrl = url.replace(
                     offset.concat("=0"),
                     offset.concat("=").concat(page.newStart.toString())
             );
-            HttpResult result = Http.doGet(newUrl, req.getHeaders(), req.getParams());
+            HttpResult result = Http.doGet(newUrl, headers, params);
             if (!JsonResult.SUCCESS.equals(result.getStatus())) {
-                result = Http.doPost(req.getUrl(), req.getHeaders(), req.getParams());
+                result = Http.doPost(newUrl, headers, params);
                 if (!JsonResult.SUCCESS.equals(result.getStatus())) {
                     JsonResult.unsuccessful(new String(result.getResult()));
                 }
@@ -70,7 +77,7 @@ public class MtController {
             page.setNewStart(page.getOldStart() + page.getPageSize() + 1);
             page.setOldStart(page.getOldStart() + page.getPageSize());
         });
-        return JsonResult.as(sum[0]);
+        return sum[0];
     }
 
     /**
