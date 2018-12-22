@@ -117,7 +117,7 @@ public class MtServiceImpl {
         }
         List<Metadata> data = metadataService.getTab(tab);
         Map<String, Metadata> fields = data.stream()
-                .filter(x -> !new Str(ID).contains(x.getField()))
+                .filter(x -> !new Str(DEFAULT__FIELD).contains(x.getField()))
                 .collect(Collectors.toMap(Metadata::getField, x -> x));
         next:
         for (int i = 0; i < maps.size(); i++) {
