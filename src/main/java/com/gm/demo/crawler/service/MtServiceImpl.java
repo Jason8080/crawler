@@ -2,9 +2,6 @@ package com.gm.demo.crawler.service;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.gm.demo.crawler.dao.mapper.MetadataMapper;
-import com.gm.demo.crawler.dao.mapper.TabMapper;
-import com.gm.demo.crawler.dao.mapper.ext.MetadataMapperExt;
 import com.gm.demo.crawler.dao.mapper.ext.MtMapperExt;
 import com.gm.demo.crawler.entity.req.MtDataReq;
 import com.gm.model.request.PageReq;
