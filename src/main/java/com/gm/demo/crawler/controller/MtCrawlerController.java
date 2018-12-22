@@ -31,7 +31,6 @@ import java.util.Map;
 public class MtCrawlerController {
 
     public static final String offset = "[offset]";
-    public static final String limit = "[limit]";
     public static final String pageSize = "[pageSize]";
     public static final String pageNo = "[pageNo]";
     public static final String id = "[id]";
