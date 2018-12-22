@@ -36,10 +36,17 @@ public class MtController {
     @Autowired
     MtServiceImpl mtService;
 
-    @PostMapping("entry")
-    @ApiOperation(value = "释放一只爬虫")
-    public JsonResult entry(@RequestBody @Valid CrawlReq req) {
+    @PostMapping("merchant")
+    @ApiOperation(value = "释放一只商家爬虫")
+    public JsonResult merchant(@RequestBody @Valid CrawlReq req) {
         Integer total = merchantPages(req.getUrl(), req.getHeaders(), req.getParams());
+        return JsonResult.as(total);
+    }
+
+    @PostMapping("comment")
+    @ApiOperation(value = "释放一只评论爬虫")
+    public JsonResult comment(@RequestBody @Valid CrawlReq req) {
+        Integer total = commentPages(req.getUrl(), req.getHeaders(), req.getParams());
         return JsonResult.as(total);
     }
 
