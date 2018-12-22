@@ -18,7 +18,7 @@ public class CrawlReq implements Serializable {
     @ApiModelProperty(value = "目标网址", required = true)
     @NotEmpty(message = "目标网址是空")
     @Pattern(message = "目标网址格式错误",
-            regexp = "^(http|ftp|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&amp;:/~\\+#]*[\\w\\-\\@?^=%&amp;/~\\+#])?$"
+            regexp = "^(http|ftp|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&amp;:/~\\+#\\[\\]]*[\\w\\-\\@?^=%&amp;/~\\+#])?$"
     )
     private String url;
 

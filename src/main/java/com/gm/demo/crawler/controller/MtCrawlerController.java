@@ -81,12 +81,8 @@ public class MtCrawlerController {
                 }
             }
             String json = new String(result.getResult());
-            Integer count = mtCrawlerService.handlerMerchant(json);
-            sum[0] += count;
+            sum[0] += mtCrawlerService.handlerMerchant(json);
             Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
-            if (count <= 0) {
-                ExceptionUtils.cast();
-            }
             // 从这里开始
             page.setPageNo(page.pageNo + 1);
         });
@@ -103,7 +99,7 @@ public class MtCrawlerController {
      */
     private Integer commentPages(final String url, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
-        P page = new P(1, 500);
+        P page = new P(1, 100);
         Quick.echo(x -> {
             String newUrl = Rules.parse(page, url);
             HttpResult result = Http.doGet(newUrl, headers, params);
@@ -114,12 +110,8 @@ public class MtCrawlerController {
                 }
             }
             String json = new String(result.getResult());
-            Integer count = mtCrawlerService.handlerComment(json);
-            sum[0] += count;
+            sum[0] += mtCrawlerService.handlerComment(json);
             Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
-            if (count < page.getPageSize()) {
-                ExceptionUtils.cast();
-            }
             // 从这里开始
             page.setOffset(page.offset + page.pageSize);
         });

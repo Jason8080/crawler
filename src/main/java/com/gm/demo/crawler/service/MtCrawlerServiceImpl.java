@@ -28,7 +28,7 @@ public class MtCrawlerServiceImpl {
     public static final String IS_CRAWL = "isCrawl";
     public static final String[] DEFAULT__FIELD = {ID, IS_CRAWL};
     public static final String DATA_FIELD = "data";
-    public static final String USERNAME_FIELD = "userName";
+    public static final String USERNAME_FIELD = "username";
     public static final String COMMENT_FIELD = "comment";
     public static final String POI_FIELD = "poi";
     public static final String POI_ID_FIELD = "poiId";
@@ -52,7 +52,7 @@ public class MtCrawlerServiceImpl {
         // 美团的Json数据放在data里
         Object data = map.get(DATA_FIELD);
         if (Bool.isNull(data)) {
-            Logger.error(String.format("美团数据是空,完整响应"));
+            ExceptionUtils.cast(Logger.error("美团数据是空,完整响应"));
         }
         map = Json.o2o(data, Map.class);
         return map;
@@ -72,10 +72,7 @@ public class MtCrawlerServiceImpl {
             // 是个集合
             if (next.getValue() instanceof List) {
                 List<Map<String, Object>> ms = (List<Map<String, Object>>) next.getValue();
-                Integer count = handler(MT_MERCHANT_TAB, ms, POI_ID_FIELD);
-                if (count > 0) {
-                    return count;
-                }
+                return handler(MT_MERCHANT_TAB, ms, POI_ID_FIELD);
             }
         }
         return 0;
@@ -95,10 +92,7 @@ public class MtCrawlerServiceImpl {
             // 是个集合
             if (next.getValue() instanceof List) {
                 List<Map<String, Object>> cs = (List<Map<String, Object>>) next.getValue();
-                Integer count = handler(MT_COMMENT_TAB, cs, COMMENT_FIELD, USERNAME_FIELD);
-                if (count > 0) {
-                    return count;
-                }
+                return handler(MT_COMMENT_TAB, cs, COMMENT_FIELD, USERNAME_FIELD);
             }
         }
         return 0;
@@ -111,12 +105,12 @@ public class MtCrawlerServiceImpl {
      */
     public Integer handler(String tab, List<Map<String, Object>> maps, String... filters) {
         if (maps.size() <= 0) {
-            ExceptionUtils.cast("没有数据了");
+            ExceptionUtils.cast(Logger.error("没有数据了"));
         }
         List<Metadata> data = metadataService.getTab(tab);
         Map<String, Metadata> fields = data.stream()
                 .filter(x -> !new Str(DEFAULT__FIELD).contains(x.getField()))
-                .collect(Collectors.toMap(Metadata::getField, x -> x));
+                .collect(Collectors.toMap(x -> x.getField().toLowerCase(), x -> x));
         next:
         for (int i = 0; i < maps.size(); i++) {
             Map<String, Object> map = maps.get(i);
