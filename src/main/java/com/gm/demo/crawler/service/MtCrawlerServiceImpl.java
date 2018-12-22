@@ -26,8 +26,8 @@ public class MtCrawlerServiceImpl {
 
     public static final String ID = "id";
     public static final String IS_CRAWL = "isCrawl";
-    public static final String[] DEFAULT__FIELD = {ID, IS_CRAWL};
-    public static final String[] EXCLUDE__FIELD = {"tags"};
+    public static final String[] DEFAULT_FIELD = {ID, IS_CRAWL};
+    public static final String[] EXCLUDE_FIELD = {"comments"};
     public static final String DATA_FIELD = "data";
     public static final String USERNAME_FIELD = "username";
     public static final String COMMENT_FIELD = "comment";
@@ -91,7 +91,10 @@ public class MtCrawlerServiceImpl {
         while (it.hasNext()) {
             Map.Entry<String, Object> next = it.next();
             // 是个集合
-            if (next.getValue() instanceof List && !new Str(EXCLUDE__FIELD).contains(next.getKey())) {
+            if (new Str(EXCLUDE_FIELD).contains(next.getKey())) {
+                if(Bool.isNull(next.getValue())){
+                    ExceptionUtils.cast(Logger.error(String.format("没有数据了%s",Json.toJson(map))));
+                }
                 List<Map<String, Object>> cs = (List<Map<String, Object>>) next.getValue();
                 return handler(MT_COMMENT_TAB, cs, COMMENT_FIELD, USERNAME_FIELD);
             }
@@ -110,16 +113,16 @@ public class MtCrawlerServiceImpl {
         }
         List<Metadata> data = metadataService.getTab(tab);
         Map<String, Metadata> fields = data.stream()
-                .filter(x -> !new Str(DEFAULT__FIELD).contains(x.getField()))
+                .filter(x -> !new Str(DEFAULT_FIELD).contains(x.getField()))
                 .collect(Collectors.toMap(x -> x.getField().toLowerCase(), x -> x));
-        next:
         for (int i = 0; i < maps.size(); i++) {
             Map<String, Object> map = maps.get(i);
+            stop:
             for (String field : filters) {
                 Object o = map.get(field);
                 if (Bool.isNull(o)) {
                     maps.remove(i--);
-                    break next;
+                    break stop;
                 }
             }
             checkFields(tab, fields, map);

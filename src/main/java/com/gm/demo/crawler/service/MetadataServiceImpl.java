@@ -160,10 +160,11 @@ public class MetadataServiceImpl {
      * @param filters the filters
      */
     public void distinct(String tab, List<Map<String, Object>> maps, String... filters) {
-        List<Map<String, Object>> exists = tabMapper.filters(tab, Arrays.asList(filters), maps.toArray(new HashMap[0]));
+        List<Map<String, Object>> exists = Bool.isNull(maps) ? new ArrayList() :
+                tabMapper.filters(tab, Arrays.asList(filters), maps.toArray(new HashMap[0]));
         for (int i = 0; i < maps.size(); i++) {
+            Map<String, Object> map = maps.get(i);
             for (Map<String, Object> exist : exists) {
-                Map<String, Object> map = maps.get(i);
                 // 默认过滤字段值都相同
                 boolean containAll = true;
                 for (String field : filters) {
