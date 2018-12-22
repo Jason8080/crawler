@@ -15,9 +15,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.Valid;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -148,6 +146,38 @@ public class MetadataServiceImpl {
      * @return the integer
      */
     public Integer save(String tab, Collection<String> fields, Map<String, String>... maps) {
-        return tabMapper.save(tab, fields, maps);
+        if (maps.length>0){
+            return tabMapper.save(tab, fields, maps);
+        }
+        return 0;
+    }
+
+    /**
+     * 去重.
+     *
+     * @param tab     the tab
+     * @param maps    the maps
+     * @param filters the filters
+     */
+    public void distinct(String tab, List<Map<String, Object>> maps, String... filters) {
+        List<Map<String, Object>> exists = tabMapper.filters(tab, Arrays.asList(filters), maps.toArray(new HashMap[0]));
+        for (int i=0; i<maps.size(); i++) {
+            for (Map<String, Object> exist : exists) {
+                Map<String, Object> map = maps.get(i);
+                // 默认过滤字段值都相同
+                boolean containAll = true;
+                for (String field : filters) {
+                    Object mapVal = map.get(field);
+                    Object existVal = exist.get(field);
+                    if(!Bool.haveNull(mapVal, existVal) && !mapVal.toString().equals(existVal.toString())){
+                        containAll = false;
+                    }
+                }
+                if(containAll){
+                    maps.remove(i--);
+                    break;
+                }
+            }
+        }
     }
 }

@@ -25,7 +25,7 @@ import java.util.Map;
  * @author Jason
  */
 @RestController
-@Api(tags = "美团爬虫入口")
+@Api(tags = "美团爬虫控制器")
 @RequestMapping("mt")
 public class MtController {
 

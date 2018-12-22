@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -153,7 +154,7 @@ public interface TabMapper {
      * @return the long
      */
     @Select({"<script>",
-            "select count(1) from `${tab}` ",
+            "select * from `${tab}` ",
             "<where>",
                 "<trim>",
                     "<foreach collection ='maps' item='map' separator='or'>",
@@ -166,7 +167,7 @@ public interface TabMapper {
                 "</trim>",
             "</where>",
             "</script>"})
-    Integer filters(@Param("tab") String tab,
-                    @Param("fields") Collection<String> fields,
-                    @Param("maps") Map<String, String>... maps);
+    List<Map<String,Object>> filters(@Param("tab") String tab,
+                                     @Param("fields") Collection<String> fields,
+                                     @Param("maps") Map<String, String>... maps);
 }

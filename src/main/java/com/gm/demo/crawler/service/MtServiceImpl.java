@@ -12,10 +12,7 @@ import com.gm.utils.ext.Json;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -50,7 +47,7 @@ public class MtServiceImpl {
         // 美团的Json数据放在data里
         Object data = map.get(DATA_FIELD);
         if (Bool.isNull(data)) {
-            Logger.error(String.format("美团数据是空,完整响应\n%s", result));
+            Logger.error(String.format("美团数据是空,完整响应"));
         }
         map = Json.o2o(data, Map.class);
         return map;
@@ -107,7 +104,7 @@ public class MtServiceImpl {
     /**
      * 处理信息.
      *
-     * @param maps 评论信息
+     * @param maps 数据信息
      */
     public Integer handler(String tab, List<Map<String, Object>> maps, String... filters) {
         if (maps.size() <= 0) {
@@ -134,6 +131,8 @@ public class MtServiceImpl {
                 checkFields(tab, fields, map);
             }
         }
+        // 去重
+        metadataService.distinct(tab, maps, filters);
         // 存储系统需求信息
         return metadataService.save(tab, fields.keySet(), maps.toArray(new HashMap[0]));
     }
