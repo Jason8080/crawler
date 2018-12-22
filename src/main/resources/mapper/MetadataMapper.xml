@@ -7,10 +7,11 @@
     <result column="data_type" jdbcType="VARCHAR" property="dataType" />
     <result column="len" jdbcType="INTEGER" property="len" />
     <result column="comment" jdbcType="VARCHAR" property="comment" />
+    <result column="def" jdbcType="VARCHAR" property="def" />
     <result column="tab" jdbcType="VARCHAR" property="tab" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, field, data_type, len, comment, tab
+    id, field, data_type, len, comment, def, tab
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -24,9 +25,11 @@
   </delete>
   <insert id="insert" parameterType="com.gm.demo.crawler.dao.model.Metadata">
     insert into metadata (id, field, data_type, 
-      len, comment, tab)
+      len, comment, def, 
+      tab)
     values (#{id,jdbcType=INTEGER}, #{field,jdbcType=VARCHAR}, #{dataType,jdbcType=VARCHAR}, 
-      #{len,jdbcType=INTEGER}, #{comment,jdbcType=VARCHAR}, #{tab,jdbcType=VARCHAR})
+      #{len,jdbcType=INTEGER}, #{comment,jdbcType=VARCHAR}, #{def,jdbcType=VARCHAR}, 
+      #{tab,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.gm.demo.crawler.dao.model.Metadata">
     insert into metadata
@@ -45,6 +48,9 @@
       </if>
       <if test="comment != null">
         comment,
+      </if>
+      <if test="def != null">
+        def,
       </if>
       <if test="tab != null">
         tab,
@@ -66,6 +72,9 @@
       <if test="comment != null">
         #{comment,jdbcType=VARCHAR},
       </if>
+      <if test="def != null">
+        #{def,jdbcType=VARCHAR},
+      </if>
       <if test="tab != null">
         #{tab,jdbcType=VARCHAR},
       </if>
@@ -86,6 +95,9 @@
       <if test="comment != null">
         comment = #{comment,jdbcType=VARCHAR},
       </if>
+      <if test="def != null">
+        def = #{def,jdbcType=VARCHAR},
+      </if>
       <if test="tab != null">
         tab = #{tab,jdbcType=VARCHAR},
       </if>
@@ -98,6 +110,7 @@
       data_type = #{dataType,jdbcType=VARCHAR},
       len = #{len,jdbcType=INTEGER},
       comment = #{comment,jdbcType=VARCHAR},
+      def = #{def,jdbcType=VARCHAR},
       tab = #{tab,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>

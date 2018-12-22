@@ -13,6 +13,8 @@ public class Metadata implements Serializable {
 
     private String comment;
 
+    private String def;
+
     private String tab;
 
     private static final long serialVersionUID = 1L;
@@ -57,6 +59,14 @@ public class Metadata implements Serializable {
         this.comment = comment == null ? null : comment.trim();
     }
 
+    public String getDef() {
+        return def;
+    }
+
+    public void setDef(String def) {
+        this.def = def == null ? null : def.trim();
+    }
+
     public String getTab() {
         return tab;
     }
@@ -76,6 +86,7 @@ public class Metadata implements Serializable {
         sb.append(", dataType=").append(dataType);
         sb.append(", len=").append(len);
         sb.append(", comment=").append(comment);
+        sb.append(", def=").append(def);
         sb.append(", tab=").append(tab);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
