@@ -12,7 +12,10 @@ import com.gm.utils.ext.Json;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -162,6 +165,10 @@ public class MtServiceImpl {
                     // 长度不够
                     req.setLen(value.length() + 10);
                     metadataService.save(req);
+                }
+                // 检测默认值
+                if(!Bool.isNull(metadata.getDef())){
+                    map.put(key, metadata.getDef());
                 }
             }
         }
