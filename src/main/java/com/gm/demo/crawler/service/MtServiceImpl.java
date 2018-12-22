@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 public class MtServiceImpl {
 
     public static final String ID = "id";
+    public static final String IS_CRAWL = "isCrawl";
+    public static final String[] DEFAULT__FIELD = {ID,IS_CRAWL};
     public static final String DATA_FIELD = "data";
     public static final String USERNAME_FIELD = "userName";
     public static final String COMMENT_FIELD = "comment";
@@ -112,7 +114,7 @@ public class MtServiceImpl {
         }
         List<Metadata> data = metadataService.getTab(tab);
         Map<String, Metadata> fields = data.stream()
-                .filter(x -> !ID.equalsIgnoreCase(x.getField()))
+                .filter(x -> !new Str(DEFAULT__FIELD).contains(x.getField()))
                 .collect(Collectors.toMap(Metadata::getField, x -> x));
         for (int i = 0; i < maps.size(); i++) {
             Map<String, Object> map = maps.get(i);
