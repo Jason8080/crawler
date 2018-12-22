@@ -128,7 +128,7 @@ public class MtCrawlerServiceImpl {
             checkFields(tab, fields, map);
         }
         // 去除特殊字符
-        metadataService.replace(maps, "`", "\'", "\"");
+        metadataService.replace(maps, "`", "\'", "\"", "\\");
         // 去重
         metadataService.distinct(tab, maps, filters);
         // 存储系统需求信息
