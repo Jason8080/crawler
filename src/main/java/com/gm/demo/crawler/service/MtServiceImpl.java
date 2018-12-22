@@ -26,7 +26,7 @@ public class MtServiceImpl {
 
     public static final String ID = "id";
     public static final String IS_CRAWL = "isCrawl";
-    public static final String[] DEFAULT__FIELD = {ID,IS_CRAWL};
+    public static final String[] DEFAULT__FIELD = {ID, IS_CRAWL};
     public static final String DATA_FIELD = "data";
     public static final String USERNAME_FIELD = "userName";
     public static final String COMMENT_FIELD = "comment";
@@ -117,24 +117,19 @@ public class MtServiceImpl {
         }
         List<Metadata> data = metadataService.getTab(tab);
         Map<String, Metadata> fields = data.stream()
-                .filter(x -> !new Str(DEFAULT__FIELD).contains(x.getField()))
+                .filter(x -> !new Str(ID).contains(x.getField()))
                 .collect(Collectors.toMap(Metadata::getField, x -> x));
+        next:
         for (int i = 0; i < maps.size(); i++) {
             Map<String, Object> map = maps.get(i);
-            // 是否有空
-            boolean have = false;
             for (String field : filters) {
                 Object o = map.get(field);
                 if (Bool.isNull(o)) {
-                    // 去除空评论
                     maps.remove(i--);
-                    have = true;
-                    break;
+                    break next;
                 }
             }
-            if (!have) {
-                checkFields(tab, fields, map);
-            }
+            checkFields(tab, fields, map);
         }
         // 去重
         metadataService.distinct(tab, maps, filters);
@@ -143,6 +138,13 @@ public class MtServiceImpl {
     }
 
     private void checkFields(String tab, Map<String, Metadata> fields, Map<String, Object> map) {
+        Map<String, String> def = fields.values().stream().filter(x -> !Bool.isNull(x.getDef())).collect(Collectors.toMap(Metadata::getField, x -> x.getDef()));
+        // 如果有默认值需要设置一下
+        Iterator<Map.Entry<String, String>> itDef = def.entrySet().iterator();
+        while (itDef.hasNext()) {
+            Map.Entry<String, String> defNext = itDef.next();
+            map.put(defNext.getKey(), defNext.getValue());
+        }
         Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Object> next = it.next();
@@ -154,7 +156,7 @@ public class MtServiceImpl {
                 value = value.replace("\"", "`");
                 map.put(key, value.trim());
             }
-            if (!Bool.isNull(value) && fields.containsKey(key)) {
+            if (fields.containsKey(key)) {
                 // 此字段数据信息
                 Metadata metadata = fields.get(key);
                 // 检测长度
@@ -165,10 +167,6 @@ public class MtServiceImpl {
                     // 长度不够
                     req.setLen(value.length() + 10);
                     metadataService.save(req);
-                }
-                // 检测默认值
-                if(!Bool.isNull(metadata.getDef())){
-                    map.put(key, metadata.getDef());
                 }
             }
         }
