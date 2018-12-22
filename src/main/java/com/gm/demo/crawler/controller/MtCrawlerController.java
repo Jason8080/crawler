@@ -5,6 +5,7 @@ import com.gm.demo.crawler.service.MtCrawlerServiceImpl;
 import com.gm.help.base.Quick;
 import com.gm.model.response.HttpResult;
 import com.gm.model.response.JsonResult;
+import com.gm.strong.Rules;
 import com.gm.utils.base.ExceptionUtils;
 import com.gm.utils.base.Logger;
 import com.gm.utils.ext.Web;
@@ -29,9 +30,11 @@ import java.util.Map;
 @RequestMapping("mt/crawler")
 public class MtCrawlerController {
 
-    public static final String offset = "offset";
-    public static final String pageNo = "page";
-    public static final String pageSize = "pageSize";
+    public static final String offset = "[offset]";
+    public static final String limit = "[limit]";
+    public static final String pageSize = "[pageSize]";
+    public static final String pageNo = "[pageNo]";
+    public static final String id = "[id]";
 
     @Autowired
     MtCrawlerServiceImpl mtCrawlerService;
@@ -39,15 +42,23 @@ public class MtCrawlerController {
     @PostMapping("merchant")
     @ApiOperation(value = "释放一只商家爬虫")
     public JsonResult merchant(@RequestBody @Valid CrawlReq req) {
-        Integer total = merchantPages(req.getUrl(), req.getHeaders(), req.getParams());
-        return JsonResult.as(total);
+        Map<String, String> params = Web.getParams(req.getUrl());
+        if (params.containsValue(pageNo)) {
+            Integer total = merchantPages(req.getUrl(), req.getHeaders(), req.getParams());
+            return JsonResult.as(total);
+        }
+        return JsonResult.unsuccessful("请设置翻页规则[field]..");
     }
 
     @PostMapping("comment")
     @ApiOperation(value = "释放一只评论爬虫")
     public JsonResult comment(@RequestBody @Valid CrawlReq req) {
-        Integer total = commentPages(req.getUrl(), req.getHeaders(), req.getParams());
-        return JsonResult.as(total);
+        Map<String, String> params = Web.getParams(req.getUrl());
+        if (params.containsValue(offset) && params.containsValue(pageSize)) {
+            Integer total = commentPages(req.getUrl(), req.getHeaders(), req.getParams());
+            return JsonResult.as(total);
+        }
+        return JsonResult.unsuccessful("请设置翻页规则[field]..");
     }
 
     /**
@@ -60,13 +71,9 @@ public class MtCrawlerController {
      */
     private Integer merchantPages(final String url, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
-        Integer no = Integer.parseInt(Web.getParam(url, pageNo));
-        P page = new P(no);
+        P page = new P(1);
         Quick.echo(x -> {
-            String newUrl = url.replace(
-                    pageNo.concat("=1"),
-                    pageNo.concat("=").concat(page.newPageNo.toString())
-            );
+            String newUrl = Rules.parse(page, url);
             HttpResult result = Http.doGet(newUrl, headers, params);
             if (!JsonResult.SUCCESS.equals(result.getStatus())) {
                 result = Http.doPost(newUrl, headers, params);
@@ -82,7 +89,7 @@ public class MtCrawlerController {
                 ExceptionUtils.cast();
             }
             // 从这里开始
-            page.setNewPageNo(page.newPageNo + 1);
+            page.setPageNo(page.pageNo + 1);
         });
         return sum[0];
     }
@@ -97,14 +104,9 @@ public class MtCrawlerController {
      */
     private Integer commentPages(final String url, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
-        Integer start = Integer.parseInt(Web.getParam(url, offset));
-        Integer size = Integer.parseInt(Web.getParam(url, pageSize));
-        P page = new P(start, size);
+        P page = new P(1, 500);
         Quick.echo(x -> {
-            String newUrl = url.replace(
-                    offset.concat("=0"),
-                    offset.concat("=").concat(page.newStart.toString())
-            );
+            String newUrl = Rules.parse(page, url);
             HttpResult result = Http.doGet(newUrl, headers, params);
             if (!JsonResult.SUCCESS.equals(result.getStatus())) {
                 result = Http.doPost(newUrl, headers, params);
@@ -120,7 +122,7 @@ public class MtCrawlerController {
                 ExceptionUtils.cast();
             }
             // 从这里开始
-            page.setNewStart(page.newStart + page.pageSize);
+            page.setOffset(page.offset + page.pageSize);
         });
         return sum[0];
     }
@@ -130,16 +132,16 @@ public class MtCrawlerController {
      */
     @Data
     static class P {
-        private Integer newStart;
-        private Integer newPageNo;
+        private Integer offset;
+        private Integer pageNo;
         private Integer pageSize;
 
-        public P(Integer newPageNo) {
-            this.newPageNo = newPageNo;
+        public P(Integer pageNo) {
+            this.pageNo = pageNo;
         }
 
-        public P(Integer newStart, Integer pageSize) {
-            this.newStart = newStart;
+        public P(Integer offset, Integer pageSize) {
+            this.offset = offset;
             this.pageSize = pageSize;
         }
     }

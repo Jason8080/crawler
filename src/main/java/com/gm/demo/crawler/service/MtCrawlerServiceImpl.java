@@ -69,9 +69,8 @@ public class MtCrawlerServiceImpl {
         Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Object> next = it.next();
-            String key = next.getKey();
             // 是个集合
-            if (key.contains(POI_FIELD)) {
+            if (next.getValue() instanceof List) {
                 List<Map<String, Object>> ms = (List<Map<String, Object>>) next.getValue();
                 Integer count = handler(MT_MERCHANT_TAB, ms, POI_ID_FIELD);
                 if (count > 0) {
@@ -93,9 +92,8 @@ public class MtCrawlerServiceImpl {
         Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Object> next = it.next();
-            String key = next.getKey();
             // 是个集合
-            if (key.contains(COMMENT_FIELD)) {
+            if (next.getValue() instanceof List) {
                 List<Map<String, Object>> cs = (List<Map<String, Object>>) next.getValue();
                 Integer count = handler(MT_COMMENT_TAB, cs, COMMENT_FIELD, USERNAME_FIELD);
                 if (count > 0) {
