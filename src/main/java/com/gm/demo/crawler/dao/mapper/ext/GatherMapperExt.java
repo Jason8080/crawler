@@ -1,6 +1,6 @@
 package com.gm.demo.crawler.dao.mapper.ext;
 
-import com.gm.demo.crawler.dao.model.Extraction;
+import com.gm.demo.crawler.dao.model.Gather;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Select;
  *
  * @author Jason
  */
-public interface ExtractionMapperExt {
+public interface GatherMapperExt {
     /**
      * Gets tab.
      *
@@ -17,5 +17,5 @@ public interface ExtractionMapperExt {
      * @return tab
      */
     @Select("select * from `scheme_fields` where tab=#{tab}")
-    Extraction getTab(@Param("tab") String tab);
+    Gather getTab(@Param("tab") String tab);
 }

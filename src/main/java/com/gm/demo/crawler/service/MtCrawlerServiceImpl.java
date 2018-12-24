@@ -1,7 +1,7 @@
 package com.gm.demo.crawler.service;
 
 import com.gm.demo.crawler.dao.mapper.TabMapper;
-import com.gm.demo.crawler.dao.model.Extraction;
+import com.gm.demo.crawler.dao.model.Gather;
 import com.gm.demo.crawler.dao.model.Metadata;
 import com.gm.demo.crawler.entity.req.SaveMetadataReq;
 import com.gm.strong.Str;
@@ -38,14 +38,14 @@ public class MtCrawlerServiceImpl {
      * 直接获取数据
      *
      * @param result
-     * @param ext
+     * @param gather
      * @return
      */
-    private Map<String, Object> getStringObjectMap(String result, Extraction ext) {
+    private Map<String, Object> getStringObjectMap(String result, Gather gather) {
         // 获取返回的Json对象｛全部小写｝
         Map<String, Object> map = Json.toMap(result.toLowerCase());
         // 美团的Json数据放在data里
-        Object data = map.get(ext.getData().toLowerCase());
+        Object data = map.get(gather.getData().toLowerCase());
         if (Bool.isNull(data)) {
             ExceptionUtils.cast(Logger.error("美团数据是空,可能需要完善访问要求"));
         }
@@ -56,22 +56,22 @@ public class MtCrawlerServiceImpl {
     /**
      * 评论列表处理.
      *
-     * @param ext
+     * @param gather
      * @param result the result
      * @return the list
      */
-    public Integer handler(Extraction ext, String result) {
-        Map<String, Object> map = getStringObjectMap(result, ext);
+    public Integer handler(Gather gather, String result) {
+        Map<String, Object> map = getStringObjectMap(result, gather);
         Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Object> next = it.next();
             // 是个集合
-            if (new Str(ext.getEcho().toLowerCase().split(",")).contains(next.getKey())) {
+            if (new Str(gather.getEcho().toLowerCase().split(",")).contains(next.getKey())) {
                 if (Bool.isNull(next.getValue())) {
                     ExceptionUtils.cast(Logger.error(String.format("没有数据了%s", Json.toJson(map))));
                 }
                 List<Map<String, Object>> cs = (List<Map<String, Object>>) next.getValue();
-                return handler(ext.getTab(), cs, ext.getFilters().toLowerCase().split(","));
+                return handler(gather.getTab(), cs, gather.getFilters().toLowerCase().split(","));
             }
         }
         return 0;

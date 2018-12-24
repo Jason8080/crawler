@@ -2,7 +2,7 @@ package com.gm.demo.crawler.dao.model;
 
 import java.io.Serializable;
 
-public class Extraction implements Serializable {
+public class Gather implements Serializable {
     private Integer id;
 
     private String tab;
