@@ -1,9 +1,9 @@
 package com.gm.demo.crawler.controller;
 
-import com.gm.demo.crawler.dao.model.SchemeFields;
+import com.gm.demo.crawler.dao.model.Extraction;
 import com.gm.demo.crawler.entity.req.CrawlReq;
+import com.gm.demo.crawler.service.ExtractionService;
 import com.gm.demo.crawler.service.MtCrawlerServiceImpl;
-import com.gm.demo.crawler.service.SchemeFieldsService;
 import com.gm.help.base.Quick;
 import com.gm.model.response.HttpResult;
 import com.gm.model.response.JsonResult;
@@ -36,13 +36,10 @@ import java.util.Map;
 @RequestMapping("mt/crawler")
 public class MtCrawlerController {
 
-    public static final String MT_COMMENT_TAB = "mt_comment_ms";
-    public static final String MT_MERCHANT_TAB = "mt_merchant_ms";
-
     @Autowired
     MtCrawlerServiceImpl mtCrawlerService;
     @Autowired
-    SchemeFieldsService schemeFieldsService;
+    ExtractionService extractionService;
 
     /**
      * Merchant json result.
@@ -54,8 +51,8 @@ public class MtCrawlerController {
     @ApiOperation(value = "释放一只商家爬虫")
     public JsonResult merchant(@RequestBody @Valid CrawlReq req) {
         String format = String.format("提取方案{%s}不存在", req.getTab());
-        SchemeFields sfs = Assert.isNull(schemeFieldsService.getTab(req.getTab()), format);
-        Integer total = pages(req.getUrl(), sfs, req.getHeaders(), req.getParams());
+        Extraction ext = Assert.isNull(extractionService.getTab(req.getTab()), format);
+        Integer total = pages(req.getUrl(), ext, req.getHeaders(), req.getParams());
         return JsonResult.as(total);
     }
 
@@ -69,8 +66,8 @@ public class MtCrawlerController {
     @ApiOperation(value = "释放一只评论爬虫")
     public JsonResult comment(@RequestBody @Valid CrawlReq req) {
         String format = String.format("请提取方案{%s}不存在", req.getTab());
-        SchemeFields sfs = Assert.isNull(schemeFieldsService.getTab(req.getTab()), format);
-        Integer total = pages(req.getUrl(), sfs, req.getHeaders(), req.getParams());
+        Extraction ext = Assert.isNull(extractionService.getTab(req.getTab()), format);
+        Integer total = pages(req.getUrl(), ext, req.getHeaders(), req.getParams());
         return JsonResult.as(total);
     }
 
@@ -82,11 +79,11 @@ public class MtCrawlerController {
      * @param params
      * @return
      */
-    private Integer pages(final String url, SchemeFields sfs, Map<String, String> headers, Map<String, Object> params) {
+    private Integer pages(final String url, Extraction ext, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
         P page = new P(0, 100);
         Quick.echo(x -> {
-            String newUrl = getUrl(url, page, sfs);
+            String newUrl = getUrl(url, page, ext);
             HttpResult result = Http.doGet(newUrl, headers, params);
             if (!JsonResult.SUCCESS.equals(result.getStatus())) {
                 result = Http.doPost(newUrl, headers, params);
@@ -95,17 +92,17 @@ public class MtCrawlerController {
                 }
             }
             String json = new String(result.getResult());
-            sum[0] += mtCrawlerService.handler(sfs, json);
+            sum[0] += mtCrawlerService.handler(ext, json);
             Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
             // 分页方案
-            String parse = Logger.exec(r -> Rules.parse(page, sfs.getPage().split(",")[0].split("=")[1]));
+            String parse = Logger.exec(r -> Rules.parse(page, ext.getPage().split(",")[0].split("=")[1]));
             page.setOffset(Math.execute(parse, Integer.class));
         });
         return sum[0];
     }
 
-    private String getUrl(String url, P page, SchemeFields sfs) {
-        String[] split = sfs.getPage().split(",");
+    private String getUrl(String url, P page, Extraction ext) {
+        String[] split = ext.getPage().split(",");
         if (split.length > 0) {
             String name = split[0].split("=")[0];
             String offset = Convert.toEmpty(Web.getParam(url, name));
