@@ -22,6 +22,10 @@ public class CrawlReq implements Serializable {
     )
     private String url;
 
+    @ApiModelProperty(value = "提取方案", required = true)
+    @NotEmpty(message = "提取方案是空")
+    private String tab;
+
     @ApiModelProperty("请求头")
     private Map<String, String> headers;
     @ApiModelProperty("请求参")

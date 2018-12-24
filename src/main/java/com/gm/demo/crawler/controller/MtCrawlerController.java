@@ -8,7 +8,9 @@ import com.gm.help.base.Quick;
 import com.gm.model.response.HttpResult;
 import com.gm.model.response.JsonResult;
 import com.gm.strong.Rules;
+import com.gm.utils.base.Assert;
 import com.gm.utils.base.Logger;
+import com.gm.utils.ext.Math;
 import com.gm.utils.third.Http;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -49,7 +51,9 @@ public class MtCrawlerController {
     @PostMapping("merchant")
     @ApiOperation(value = "释放一只商家爬虫")
     public JsonResult merchant(@RequestBody @Valid CrawlReq req) {
-        Integer total = merchantPages(req.getUrl(), req.getHeaders(), req.getParams());
+        String format = String.format("提取方案{%s}不存在", req.getTab());
+        SchemeFields sfs = Assert.isNull(schemeFieldsService.getTab(req.getTab()), format);
+        Integer total = pages(req.getUrl(), sfs, req.getHeaders(), req.getParams());
         return JsonResult.as(total);
     }
 
@@ -62,24 +66,25 @@ public class MtCrawlerController {
     @PostMapping("comment")
     @ApiOperation(value = "释放一只评论爬虫")
     public JsonResult comment(@RequestBody @Valid CrawlReq req) {
-        Integer total = commentPages(req.getUrl(), req.getHeaders(), req.getParams());
+        String format = String.format("请提取方案{%s}不存在", req.getTab());
+        SchemeFields sfs = Assert.isNull(schemeFieldsService.getTab(req.getTab()), format);
+        Integer total = pages(req.getUrl(), sfs, req.getHeaders(), req.getParams());
         return JsonResult.as(total);
     }
 
     /**
-     * 分页爬取商家数据
+     * 分页爬取数据
      *
      * @param url
      * @param headers
      * @param params
      * @return
      */
-    private Integer merchantPages(String url, Map<String, String> headers, Map<String, Object> params) {
+    private Integer pages(final String url, SchemeFields sfs, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
-        P page = new P(1);
-        SchemeFields sfs = Logger.exec(x->schemeFieldsService.getTab(MT_MERCHANT_TAB), "请配置提取方案{}", MT_MERCHANT_TAB);
+        P page = new P(0, 100);
         Quick.echo(x -> {
-            String newUrl = getMerchantUrl(url, page);
+            String newUrl = getUrl(url, page, sfs);
             HttpResult result = Http.doGet(newUrl, headers, params);
             if (!JsonResult.SUCCESS.equals(result.getStatus())) {
                 result = Http.doPost(newUrl, headers, params);
@@ -90,50 +95,18 @@ public class MtCrawlerController {
             String json = new String(result.getResult());
             sum[0] += mtCrawlerService.handler(sfs, json);
             Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
-            // 从这里开始
-            page.setPageNo(page.pageNo + 1);
+            // 分页方案
+            String parse = Logger.exec(r -> Rules.parse(page, sfs.getPage().split("=")[1]));
+            page.setOffset(Math.execute(parse, Integer.class));
         });
         return sum[0];
     }
 
-    private String getMerchantUrl(final String url, P page) {
-        String replace = url.replace("page".concat("=1"), "page".concat("=").concat(page.pageNo.toString()));
-        return Rules.parse(page, replace);
-    }
-
-    /**
-     * 分页爬取评论数据
-     *
-     * @param url
-     * @param headers
-     * @param params
-     * @return
-     */
-    private Integer commentPages(String url, Map<String, String> headers, Map<String, Object> params) {
-        Integer[] sum = {0};
-        P page = new P(1, 100);
-        SchemeFields sfs = Logger.exec(x->schemeFieldsService.getTab(MT_COMMENT_TAB), "请配置提取方案{}", MT_COMMENT_TAB);
-        Quick.echo(x -> {
-            String newUrl = getCommentUrl(url, page);
-            HttpResult result = Http.doGet(newUrl, headers, params);
-            if (!JsonResult.SUCCESS.equals(result.getStatus())) {
-                result = Http.doPost(newUrl, headers, params);
-                if (!JsonResult.SUCCESS.equals(result.getStatus())) {
-                    JsonResult.unsuccessful(new String(result.getResult()));
-                }
-            }
-            String json = new String(result.getResult());
-            sum[0] += mtCrawlerService.handler(sfs, json);
-            Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
-            // 从这里开始
-            page.setOffset(page.offset + page.pageSize);
-        });
-        return sum[0];
-    }
-
-    private String getCommentUrl(String url, P page) {
-        String replace = url.replace("offset".concat("=0"), "offset".concat("=").concat(page.offset.toString()));
-        return Rules.parse(page, replace);
+    private String getUrl(String url, P page, SchemeFields sfs) {
+        String offset = sfs.getPage().split("=")[0];
+        url = url.replace(offset.concat("=0"), offset.concat("=").concat(page.offset.toString()));
+        url = url.replace(offset.concat("=1"), offset.concat("=").concat(page.offset.toString()));
+        return Rules.parse(page, url);
     }
 
     /**
@@ -142,16 +115,10 @@ public class MtCrawlerController {
     @Data
     static class P {
         private Integer offset;
-        private Integer pageNo;
         private Integer pageSize;
 
-        /**
-         * Instantiates a new P.
-         *
-         * @param pageNo the page no
-         */
-        public P(Integer pageNo) {
-            this.pageNo = pageNo;
+        public P(Integer offset) {
+            this.offset = offset;
         }
 
         /**
