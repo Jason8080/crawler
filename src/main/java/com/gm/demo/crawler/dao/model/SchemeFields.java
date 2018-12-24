@@ -2,7 +2,7 @@ package com.gm.demo.crawler.dao.model;
 
 import java.io.Serializable;
 
-public class MtFields implements Serializable {
+public class SchemeFields implements Serializable {
     private Integer id;
 
     private String tab;

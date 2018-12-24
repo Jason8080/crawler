@@ -1,6 +1,6 @@
 package com.gm.demo.crawler.dao.mapper.ext;
 
-import com.gm.demo.crawler.dao.model.MtFields;
+import com.gm.demo.crawler.dao.model.SchemeFields;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -9,13 +9,13 @@ import org.apache.ibatis.annotations.Select;
  *
  * @author Jason
  */
-public interface MtFieldsMapperExt {
+public interface SchemeFieldsMapperExt {
     /**
      * Gets tab.
      *
      * @param tab tab
      * @return tab
      */
-    @Select("select * from `mt_fields` where tab=#{tab}")
-    MtFields getTab(@Param("tab") String tab);
+    @Select("select * from `scheme_fields` where tab=#{tab}")
+    SchemeFields getTab(@Param("tab") String tab);
 }
