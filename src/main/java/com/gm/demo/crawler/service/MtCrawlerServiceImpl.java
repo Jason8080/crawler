@@ -6,7 +6,10 @@ import com.gm.demo.crawler.dao.model.Metadata;
 import com.gm.demo.crawler.dao.model.SchemeFields;
 import com.gm.demo.crawler.entity.req.SaveMetadataReq;
 import com.gm.strong.Str;
-import com.gm.utils.base.*;
+import com.gm.utils.base.Bool;
+import com.gm.utils.base.Convert;
+import com.gm.utils.base.ExceptionUtils;
+import com.gm.utils.base.Logger;
 import com.gm.utils.ext.Json;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,7 +63,7 @@ public class MtCrawlerServiceImpl {
      * @return the list
      */
     public Integer handler(String tab, String result) {
-        SchemeFields sfs = Assert.isNull(schemeFieldsMapperExt.getTab(tab), String.format("请配置提取方案%s", result));
+        SchemeFields sfs = Logger.exec(x->schemeFieldsMapperExt.getTab(tab), "请配置提取方案{}", tab);
         Map<String, Object> map = getStringObjectMap(result, sfs);
         Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
         while (it.hasNext()) {

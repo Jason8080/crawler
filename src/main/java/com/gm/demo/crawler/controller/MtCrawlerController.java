@@ -30,8 +30,8 @@ import java.util.Map;
 @RequestMapping("mt/crawler")
 public class MtCrawlerController {
 
-    public static final String MT_COMMENT_TAB = "mt_comment";
-    public static final String MT_MERCHANT_TAB = "mt_merchant";
+    public static final String MT_COMMENT_TAB = "mt_comment_ms";
+    public static final String MT_MERCHANT_TAB = "mt_merchant_ms";
     /**
      * The constant offset.
      */
