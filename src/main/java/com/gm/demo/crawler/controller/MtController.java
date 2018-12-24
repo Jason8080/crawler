@@ -1,6 +1,8 @@
 package com.gm.demo.crawler.controller;
 
-import com.gm.demo.crawler.entity.req.MtDataReq;
+import com.gm.demo.crawler.entity.req.MtCommentDataReq;
+import com.gm.demo.crawler.entity.req.MtDistinctReq;
+import com.gm.demo.crawler.entity.req.MtMerchantDataReq;
 import com.gm.demo.crawler.service.MtServiceImpl;
 import com.gm.model.request.PageReq;
 import com.gm.model.response.JsonResult;
@@ -26,8 +28,19 @@ public class MtController {
     MtServiceImpl mtService;
 
     @PostMapping("merchant/getPage")
-    @ApiOperation(value = "获取1页商家")
-    public JsonResult<Map<String,Object>> getPage(PageReq pageReq, @Valid MtDataReq req) {
+    @ApiOperation(value = "获取1页商家数据")
+    public JsonResult<Map<String,Object>> getPage(PageReq pageReq, @Valid MtMerchantDataReq req) {
         return JsonResult.as(mtService.getPage(pageReq, req));
+    }
+    @PostMapping("comment/getPage")
+    @ApiOperation(value = "获取1页评论数据")
+    public JsonResult<Map<String,Object>> getPage(PageReq pageReq, @Valid MtCommentDataReq req) {
+        return JsonResult.as(mtService.getPage(pageReq, req));
+    }
+
+    @PostMapping("distinct")
+    @ApiOperation(value = "数据去重")
+    public JsonResult<Integer> distinct(@Valid MtDistinctReq req) {
+        return JsonResult.as(mtService.distinct(req));
     }
 }
