@@ -27,7 +27,7 @@ public class MtCrawlerServiceImpl {
     public static final String ID = "id";
     public static final String IS_CRAWL = "isCrawl";
     public static final String[] DEFAULT_FIELD = {ID, IS_CRAWL};
-    public static final String[] EXCLUDE_FIELD = {"comments"};
+    public static final String[] EXCLUDE_FIELD = {"comments","poiinfos"};
     public static final String DATA_FIELD = "data";
     public static final String USERNAME_FIELD = "username";
     public static final String COMMENT_FIELD = "comment";
@@ -71,7 +71,10 @@ public class MtCrawlerServiceImpl {
         while (it.hasNext()) {
             Map.Entry<String, Object> next = it.next();
             // 是个集合
-            if (next.getValue() instanceof List) {
+            if (new Str(EXCLUDE_FIELD).contains(next.getKey())) {
+                if(Bool.isNull(next.getValue())){
+                    ExceptionUtils.cast(Logger.error(String.format("没有数据了%s",Json.toJson(map))));
+                }
                 List<Map<String, Object>> ms = (List<Map<String, Object>>) next.getValue();
                 return handler(MT_MERCHANT_TAB, ms, POI_ID_FIELD);
             }
