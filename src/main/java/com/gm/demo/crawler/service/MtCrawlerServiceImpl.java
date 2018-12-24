@@ -1,13 +1,12 @@
 package com.gm.demo.crawler.service;
 
 import com.gm.demo.crawler.dao.mapper.TabMapper;
+import com.gm.demo.crawler.dao.mapper.ext.MtFieldsMapperExt;
 import com.gm.demo.crawler.dao.model.Metadata;
+import com.gm.demo.crawler.dao.model.MtFields;
 import com.gm.demo.crawler.entity.req.SaveMetadataReq;
 import com.gm.strong.Str;
-import com.gm.utils.base.Bool;
-import com.gm.utils.base.Convert;
-import com.gm.utils.base.ExceptionUtils;
-import com.gm.utils.base.Logger;
+import com.gm.utils.base.*;
 import com.gm.utils.ext.Json;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,17 +26,11 @@ public class MtCrawlerServiceImpl {
     public static final String ID = "id";
     public static final String IS_CRAWL = "isCrawl";
     public static final String[] DEFAULT_FIELD = {ID, IS_CRAWL};
-    public static final String[] EXCLUDE_FIELD = {"comments","poiinfos"};
-    public static final String DATA_FIELD = "data";
-    public static final String USERNAME_FIELD = "username";
-    public static final String COMMENT_FIELD = "comment";
-    public static final String POI_FIELD = "poi";
-    public static final String POI_ID_FIELD = "poiId";
-    public static final String MT_COMMENT_TAB = "mt_comment";
-    public static final String MT_MERCHANT_TAB = "mt_merchant";
 
     @Autowired
     TabMapper tabMapper;
+    @Autowired
+    MtFieldsMapperExt mtFieldsMapperExt;
     @Autowired
     MetadataServiceImpl metadataService;
 
@@ -45,13 +38,14 @@ public class MtCrawlerServiceImpl {
      * 直接获取数据
      *
      * @param result
+     * @param mfs
      * @return
      */
-    private Map<String, Object> getStringObjectMap(String result) {
+    private Map<String, Object> getStringObjectMap(String result, MtFields mfs) {
         // 获取返回的Json对象｛全部小写｝
         Map<String, Object> map = Json.toMap(result.toLowerCase());
         // 美团的Json数据放在data里
-        Object data = map.get(DATA_FIELD);
+        Object data = map.get(mfs.getData().toLowerCase());
         if (Bool.isNull(data)) {
             ExceptionUtils.cast(Logger.error("美团数据是空,可能需要完善访问要求"));
         }
@@ -60,46 +54,24 @@ public class MtCrawlerServiceImpl {
     }
 
     /**
-     * 商家列表处理
-     *
-     * @param json
-     * @return
-     */
-    public Integer handlerMerchant(String json) {
-        Map<String, Object> map = getStringObjectMap(json);
-        Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<String, Object> next = it.next();
-            // 是个集合
-            if (new Str(EXCLUDE_FIELD).contains(next.getKey())) {
-                if(Bool.isNull(next.getValue())){
-                    ExceptionUtils.cast(Logger.error(String.format("没有数据了%s",Json.toJson(map))));
-                }
-                List<Map<String, Object>> ms = (List<Map<String, Object>>) next.getValue();
-                return handler(MT_MERCHANT_TAB, ms, POI_ID_FIELD);
-            }
-        }
-        return 0;
-    }
-
-    /**
      * 评论列表处理.
      *
      * @param result the result
      * @return the list
      */
-    public Integer handlerComment(String result) {
-        Map<String, Object> map = getStringObjectMap(result);
+    public Integer handler(String tab, String result) {
+        MtFields mfs = Assert.isNull(mtFieldsMapperExt.getTab(tab), String.format("请配置提取方案%s", result));
+        Map<String, Object> map = getStringObjectMap(result, mfs);
         Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<String, Object> next = it.next();
             // 是个集合
-            if (new Str(EXCLUDE_FIELD).contains(next.getKey())) {
-                if(Bool.isNull(next.getValue())){
-                    ExceptionUtils.cast(Logger.error(String.format("没有数据了%s",Json.toJson(map))));
+            if (new Str(mfs.getEcho().toLowerCase().split(",")).contains(next.getKey())) {
+                if (Bool.isNull(next.getValue())) {
+                    ExceptionUtils.cast(Logger.error(String.format("没有数据了%s", Json.toJson(map))));
                 }
                 List<Map<String, Object>> cs = (List<Map<String, Object>>) next.getValue();
-                return handler(MT_COMMENT_TAB, cs, COMMENT_FIELD, USERNAME_FIELD);
+                return handler(mfs.getTab(), cs, mfs.getFilters().toLowerCase().split(","));
             }
         }
         return 0;

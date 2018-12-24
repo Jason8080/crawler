@@ -30,6 +30,8 @@ import java.util.Map;
 @RequestMapping("mt/crawler")
 public class MtCrawlerController {
 
+    public static final String MT_COMMENT_TAB = "mt_comment";
+    public static final String MT_MERCHANT_TAB = "mt_merchant";
     /**
      * The constant offset.
      */
@@ -100,7 +102,7 @@ public class MtCrawlerController {
                 }
             }
             String json = new String(result.getResult());
-            sum[0] += mtCrawlerService.handlerMerchant(json);
+            sum[0] += mtCrawlerService.handler(MT_MERCHANT_TAB,json);
             Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
             // 从这里开始
             page.setPageNo(page.pageNo + 1);
@@ -133,7 +135,7 @@ public class MtCrawlerController {
                 }
             }
             String json = new String(result.getResult());
-            sum[0] += mtCrawlerService.handlerComment(json);
+            sum[0] += mtCrawlerService.handler(MT_COMMENT_TAB, json);
             Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
             // 从这里开始
             page.setOffset(page.offset + page.pageSize);
