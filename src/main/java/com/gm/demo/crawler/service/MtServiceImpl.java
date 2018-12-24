@@ -28,11 +28,15 @@ public class MtServiceImpl {
     }
 
     public Integer distinct(MtDistinctReq req) {
+        Integer sum = 0;
         List<Integer> ids = new ArrayList();
         while ((ids.addAll(mtMapperExt.getDistinct(req)))) {
-        }
-        if (ids.size() > 0) {
-            return mtMapperExt.del(req.getTab(), ids);
+            if (ids.size() > 0) {
+                sum += mtMapperExt.del(req.getTab(), ids);
+                ids.clear();
+            } else {
+                return sum;
+            }
         }
         return 0;
     }

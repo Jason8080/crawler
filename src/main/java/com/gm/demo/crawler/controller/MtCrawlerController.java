@@ -6,9 +6,7 @@ import com.gm.help.base.Quick;
 import com.gm.model.response.HttpResult;
 import com.gm.model.response.JsonResult;
 import com.gm.strong.Rules;
-import com.gm.utils.base.ExceptionUtils;
 import com.gm.utils.base.Logger;
-import com.gm.utils.ext.Web;
 import com.gm.utils.third.Http;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,6 +21,8 @@ import javax.validation.Valid;
 import java.util.Map;
 
 /**
+ * The type Mt crawler controller.
+ *
  * @author Jason
  */
 @RestController
@@ -30,34 +30,53 @@ import java.util.Map;
 @RequestMapping("mt/crawler")
 public class MtCrawlerController {
 
+    /**
+     * The constant offset.
+     */
     public static final String offset = "[offset]";
+    /**
+     * The constant pageSize.
+     */
     public static final String pageSize = "[pageSize]";
+    /**
+     * The constant pageNo.
+     */
     public static final String pageNo = "[pageNo]";
+    /**
+     * The constant id.
+     */
     public static final String id = "[id]";
 
+    /**
+     * The Mt crawler service.
+     */
     @Autowired
     MtCrawlerServiceImpl mtCrawlerService;
 
+    /**
+     * Merchant json result.
+     *
+     * @param req the req
+     * @return the json result
+     */
     @PostMapping("merchant")
     @ApiOperation(value = "释放一只商家爬虫")
     public JsonResult merchant(@RequestBody @Valid CrawlReq req) {
-        Map<String, String> params = Web.getParams(req.getUrl());
-        if (params.containsValue(pageNo)) {
-            Integer total = merchantPages(req.getUrl(), req.getHeaders(), req.getParams());
-            return JsonResult.as(total);
-        }
-        return JsonResult.unsuccessful("请设置翻页规则[field]..");
+        Integer total = merchantPages(req.getUrl(), req.getHeaders(), req.getParams());
+        return JsonResult.as(total);
     }
 
+    /**
+     * Comment json result.
+     *
+     * @param req the req
+     * @return the json result
+     */
     @PostMapping("comment")
     @ApiOperation(value = "释放一只评论爬虫")
     public JsonResult comment(@RequestBody @Valid CrawlReq req) {
-        Map<String, String> params = Web.getParams(req.getUrl());
-        if (params.containsValue(offset) && params.containsValue(pageSize)) {
-            Integer total = commentPages(req.getUrl(), req.getHeaders(), req.getParams());
-            return JsonResult.as(total);
-        }
-        return JsonResult.unsuccessful("请设置翻页规则[field]..");
+        Integer total = commentPages(req.getUrl(), req.getHeaders(), req.getParams());
+        return JsonResult.as(total);
     }
 
     /**
@@ -68,11 +87,11 @@ public class MtCrawlerController {
      * @param params
      * @return
      */
-    private Integer merchantPages(final String url, Map<String, String> headers, Map<String, Object> params) {
+    private Integer merchantPages(String url, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
         P page = new P(1);
         Quick.echo(x -> {
-            String newUrl = Rules.parse(page, url);
+            String newUrl = getMerchantUrl(url, page);
             HttpResult result = Http.doGet(newUrl, headers, params);
             if (!JsonResult.SUCCESS.equals(result.getStatus())) {
                 result = Http.doPost(newUrl, headers, params);
@@ -89,6 +108,10 @@ public class MtCrawlerController {
         return sum[0];
     }
 
+    private String getMerchantUrl(final String url, P page) {
+        return Rules.parse(page, url.replace("page".concat("=1"), "page".concat("=").concat(page.pageNo.toString())));
+    }
+
     /**
      * 分页爬取评论数据
      *
@@ -97,11 +120,11 @@ public class MtCrawlerController {
      * @param params
      * @return
      */
-    private Integer commentPages(final String url, Map<String, String> headers, Map<String, Object> params) {
+    private Integer commentPages(String url, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
         P page = new P(1, 100);
         Quick.echo(x -> {
-            String newUrl = Rules.parse(page, url);
+            String newUrl = getCommentUrl(url, page);
             HttpResult result = Http.doGet(newUrl, headers, params);
             if (!JsonResult.SUCCESS.equals(result.getStatus())) {
                 result = Http.doPost(newUrl, headers, params);
@@ -118,6 +141,10 @@ public class MtCrawlerController {
         return sum[0];
     }
 
+    private String getCommentUrl(String url, P page) {
+        return Rules.parse(page, url.replace("offset".concat("=0"), "offset".concat("=").concat(page.offset.toString())));
+    }
+
     /**
      * 分页对象
      */
@@ -127,10 +154,21 @@ public class MtCrawlerController {
         private Integer pageNo;
         private Integer pageSize;
 
+        /**
+         * Instantiates a new P.
+         *
+         * @param pageNo the page no
+         */
         public P(Integer pageNo) {
             this.pageNo = pageNo;
         }
 
+        /**
+         * Instantiates a new P.
+         *
+         * @param offset   the offset
+         * @param pageSize the page size
+         */
         public P(Integer offset, Integer pageSize) {
             this.offset = offset;
             this.pageSize = pageSize;
