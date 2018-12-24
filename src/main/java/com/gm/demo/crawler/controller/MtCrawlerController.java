@@ -9,8 +9,10 @@ import com.gm.model.response.HttpResult;
 import com.gm.model.response.JsonResult;
 import com.gm.strong.Rules;
 import com.gm.utils.base.Assert;
+import com.gm.utils.base.Convert;
 import com.gm.utils.base.Logger;
 import com.gm.utils.ext.Math;
+import com.gm.utils.ext.Web;
 import com.gm.utils.third.Http;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -96,16 +98,25 @@ public class MtCrawlerController {
             sum[0] += mtCrawlerService.handler(sfs, json);
             Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
             // 分页方案
-            String parse = Logger.exec(r -> Rules.parse(page, sfs.getPage().split("=")[1]));
+            String parse = Logger.exec(r -> Rules.parse(page, sfs.getPage().split(",")[0].split("=")[1]));
             page.setOffset(Math.execute(parse, Integer.class));
         });
         return sum[0];
     }
 
     private String getUrl(String url, P page, SchemeFields sfs) {
-        String offset = sfs.getPage().split("=")[0];
-        url = url.replace(offset.concat("=0"), offset.concat("=").concat(page.offset.toString()));
-        url = url.replace(offset.concat("=1"), offset.concat("=").concat(page.offset.toString()));
+        String[] split = sfs.getPage().split(",");
+        if (split.length > 0) {
+            String name = split[0].split("=")[0];
+            String offset = Convert.toEmpty(Web.getParam(url, name));
+            url = url.replace(name.concat("=").concat(offset), name.concat("=").concat(page.offset.toString()));
+        }
+        if (split.length > 1) {
+            String name = split[1];
+            String pageSize = Convert.toEmpty(Web.getParam(url, name));
+            url = url.replace(name.concat("=").concat(pageSize), name.concat("=").concat(page.pageSize.toString()));
+
+        }
         return Rules.parse(page, url);
     }
 
