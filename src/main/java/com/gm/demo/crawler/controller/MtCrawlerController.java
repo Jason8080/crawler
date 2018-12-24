@@ -1,7 +1,9 @@
 package com.gm.demo.crawler.controller;
 
+import com.gm.demo.crawler.dao.model.SchemeFields;
 import com.gm.demo.crawler.entity.req.CrawlReq;
 import com.gm.demo.crawler.service.MtCrawlerServiceImpl;
+import com.gm.demo.crawler.service.SchemeFieldsService;
 import com.gm.help.base.Quick;
 import com.gm.model.response.HttpResult;
 import com.gm.model.response.JsonResult;
@@ -32,28 +34,11 @@ public class MtCrawlerController {
 
     public static final String MT_COMMENT_TAB = "mt_comment_ms";
     public static final String MT_MERCHANT_TAB = "mt_merchant_ms";
-    /**
-     * The constant offset.
-     */
-    public static final String offset = "[offset]";
-    /**
-     * The constant pageSize.
-     */
-    public static final String pageSize = "[pageSize]";
-    /**
-     * The constant pageNo.
-     */
-    public static final String pageNo = "[pageNo]";
-    /**
-     * The constant id.
-     */
-    public static final String id = "[id]";
 
-    /**
-     * The Mt crawler service.
-     */
     @Autowired
     MtCrawlerServiceImpl mtCrawlerService;
+    @Autowired
+    SchemeFieldsService schemeFieldsService;
 
     /**
      * Merchant json result.
@@ -92,6 +77,7 @@ public class MtCrawlerController {
     private Integer merchantPages(String url, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
         P page = new P(1);
+        SchemeFields sfs = Logger.exec(x->schemeFieldsService.getTab(MT_MERCHANT_TAB), "请配置提取方案{}", MT_MERCHANT_TAB);
         Quick.echo(x -> {
             String newUrl = getMerchantUrl(url, page);
             HttpResult result = Http.doGet(newUrl, headers, params);
@@ -102,7 +88,7 @@ public class MtCrawlerController {
                 }
             }
             String json = new String(result.getResult());
-            sum[0] += mtCrawlerService.handler(MT_MERCHANT_TAB,json);
+            sum[0] += mtCrawlerService.handler(sfs, json);
             Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
             // 从这里开始
             page.setPageNo(page.pageNo + 1);
@@ -111,7 +97,8 @@ public class MtCrawlerController {
     }
 
     private String getMerchantUrl(final String url, P page) {
-        return Rules.parse(page, url.replace("page".concat("=1"), "page".concat("=").concat(page.pageNo.toString())));
+        String replace = url.replace("page".concat("=1"), "page".concat("=").concat(page.pageNo.toString()));
+        return Rules.parse(page, replace);
     }
 
     /**
@@ -125,6 +112,7 @@ public class MtCrawlerController {
     private Integer commentPages(String url, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
         P page = new P(1, 100);
+        SchemeFields sfs = Logger.exec(x->schemeFieldsService.getTab(MT_COMMENT_TAB), "请配置提取方案{}", MT_COMMENT_TAB);
         Quick.echo(x -> {
             String newUrl = getCommentUrl(url, page);
             HttpResult result = Http.doGet(newUrl, headers, params);
@@ -135,7 +123,7 @@ public class MtCrawlerController {
                 }
             }
             String json = new String(result.getResult());
-            sum[0] += mtCrawlerService.handler(MT_COMMENT_TAB, json);
+            sum[0] += mtCrawlerService.handler(sfs, json);
             Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
             // 从这里开始
             page.setOffset(page.offset + page.pageSize);
@@ -144,7 +132,8 @@ public class MtCrawlerController {
     }
 
     private String getCommentUrl(String url, P page) {
-        return Rules.parse(page, url.replace("offset".concat("=0"), "offset".concat("=").concat(page.offset.toString())));
+        String replace = url.replace("offset".concat("=0"), "offset".concat("=").concat(page.offset.toString()));
+        return Rules.parse(page, replace);
     }
 
     /**

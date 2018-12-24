@@ -33,8 +33,6 @@ public class MtCrawlerServiceImpl {
     @Autowired
     TabMapper tabMapper;
     @Autowired
-    SchemeFieldsMapperExt schemeFieldsMapperExt;
-    @Autowired
     MetadataServiceImpl metadataService;
 
     /**
@@ -59,11 +57,12 @@ public class MtCrawlerServiceImpl {
     /**
      * 评论列表处理.
      *
+     *
+     * @param sfs
      * @param result the result
      * @return the list
      */
-    public Integer handler(String tab, String result) {
-        SchemeFields sfs = Logger.exec(x->schemeFieldsMapperExt.getTab(tab), "请配置提取方案{}", tab);
+    public Integer handler(SchemeFields sfs, String result) {
         Map<String, Object> map = getStringObjectMap(result, sfs);
         Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
         while (it.hasNext()) {
