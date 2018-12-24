@@ -22,6 +22,8 @@ public class GatherServiceImpl {
     @Autowired
     GatherMapper gatherMapper;
     @Autowired
+    TabMapper tabMapper;
+    @Autowired
     GatherMapperExt gatherMapperExt;
     @Autowired
     MetadataServiceImpl metadataService;
@@ -46,5 +48,10 @@ public class GatherServiceImpl {
         tabReq.setFields(req.getCollect().split(","));
         metadataService.save(tabReq);
         return req.getId();
+    }
+
+    public Integer del(String tab) {
+        metadataService.dropTab(tab);
+        return gatherMapperExt.del(tab);
     }
 }

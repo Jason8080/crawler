@@ -1,6 +1,7 @@
 package com.gm.demo.crawler.controller;
 
 import com.gm.demo.crawler.entity.req.DataReq;
+import com.gm.demo.crawler.entity.req.DelGatherReq;
 import com.gm.demo.crawler.entity.req.SaveGatherReq;
 import com.gm.demo.crawler.service.DataServiceImpl;
 import com.gm.demo.crawler.service.GatherServiceImpl;
@@ -9,6 +10,7 @@ import com.gm.model.response.JsonResult;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,5 +44,11 @@ public class GatherController {
     @ApiOperation(value = "保存方案")
     public JsonResult<Integer> save(@Valid SaveGatherReq req) {
         return JsonResult.as(gatherService.save(req));
+    }
+
+    @PostMapping("del/{tab}")
+    @ApiOperation(value = "删除方案")
+    public JsonResult<Integer> tab(@PathVariable("tab") String tab) {
+        return JsonResult.as(gatherService.del(tab));
     }
 }

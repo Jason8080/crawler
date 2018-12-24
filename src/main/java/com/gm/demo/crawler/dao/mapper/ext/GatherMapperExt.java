@@ -2,10 +2,7 @@ package com.gm.demo.crawler.dao.mapper.ext;
 
 import com.gm.demo.crawler.dao.model.Gather;
 import com.gm.demo.crawler.entity.req.SaveGatherReq;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Options;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 /**
  * The interface Mt fields mapper ext.
@@ -34,4 +31,13 @@ public interface GatherMapperExt {
             "</script>"})
     @Options(useGeneratedKeys = true)
     Integer save(@Param("req") SaveGatherReq req);
+
+    /**
+     * 删除方案.
+     *
+     * @param tab the tab
+     * @return the integer
+     */
+    @Delete("delete from `gather` where tab=#{tab}")
+    Integer del(@Param("tab") String tab);
 }
