@@ -19,7 +19,7 @@ import java.util.Map;
  * @author Jason
  */
 @RestController
-@Api(tags = "数据控制器")
+@Api(tags = "数据管理")
 @RequestMapping("data")
 public class DataController {
     @Autowired

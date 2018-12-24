@@ -29,7 +29,7 @@ public class Swagger2 {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("G m l e e 官网在线文档")
+                .title("G m l e e 官方在线文档")
                 .description("简单优雅的风格，通用易懂的方式。")
                 .termsOfServiceUrl("http://gmlee.cn/")
                 .version("1.0")
