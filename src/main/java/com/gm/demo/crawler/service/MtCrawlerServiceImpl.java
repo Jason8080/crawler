@@ -131,7 +131,7 @@ public class MtCrawlerServiceImpl {
                 if (metadata.getLen() < Convert.toEmpty(value).length()) {
                     SaveMetadataReq req = new SaveMetadataReq();
                     req.setTab(tab);
-                    req.setField(metadata.getField());
+                    req.setFields(new String[]{metadata.getField()});
                     // 长度不够
                     req.setLen(value.length() + 10);
                     metadataService.save(req);

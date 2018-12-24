@@ -8,11 +8,10 @@
     <result column="data" property="data" jdbcType="VARCHAR" />
     <result column="filters" property="filters" jdbcType="VARCHAR" />
     <result column="echo" property="echo" jdbcType="VARCHAR" />
-    <result column="extracts" property="extracts" jdbcType="VARCHAR" />
     <result column="api_example" property="apiExample" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    id, tab, page, data, filters, echo, extracts, api_example
+    id, tab, page, data, filters, echo, api_example
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -27,10 +26,10 @@
   <insert id="insert" parameterType="com.gm.demo.crawler.dao.model.Gather" >
     insert into gather (id, tab, page, 
       data, filters, echo, 
-      extracts, api_example)
+      api_example)
     values (#{id,jdbcType=INTEGER}, #{tab,jdbcType=VARCHAR}, #{page,jdbcType=VARCHAR}, 
       #{data,jdbcType=VARCHAR}, #{filters,jdbcType=VARCHAR}, #{echo,jdbcType=VARCHAR}, 
-      #{extracts,jdbcType=VARCHAR}, #{apiExample,jdbcType=VARCHAR})
+      #{apiExample,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.gm.demo.crawler.dao.model.Gather" >
     insert into gather
@@ -52,9 +51,6 @@
       </if>
       <if test="echo != null" >
         echo,
-      </if>
-      <if test="extracts != null" >
-        extracts,
       </if>
       <if test="apiExample != null" >
         api_example,
@@ -79,9 +75,6 @@
       <if test="echo != null" >
         #{echo,jdbcType=VARCHAR},
       </if>
-      <if test="extracts != null" >
-        #{extracts,jdbcType=VARCHAR},
-      </if>
       <if test="apiExample != null" >
         #{apiExample,jdbcType=VARCHAR},
       </if>
@@ -105,9 +98,6 @@
       <if test="echo != null" >
         echo = #{echo,jdbcType=VARCHAR},
       </if>
-      <if test="extracts != null" >
-        extracts = #{extracts,jdbcType=VARCHAR},
-      </if>
       <if test="apiExample != null" >
         api_example = #{apiExample,jdbcType=VARCHAR},
       </if>
@@ -121,7 +111,6 @@
       data = #{data,jdbcType=VARCHAR},
       filters = #{filters,jdbcType=VARCHAR},
       echo = #{echo,jdbcType=VARCHAR},
-      extracts = #{extracts,jdbcType=VARCHAR},
       api_example = #{apiExample,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>

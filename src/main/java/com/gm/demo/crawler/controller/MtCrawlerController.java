@@ -2,7 +2,7 @@ package com.gm.demo.crawler.controller;
 
 import com.gm.demo.crawler.dao.model.Gather;
 import com.gm.demo.crawler.entity.req.CrawlReq;
-import com.gm.demo.crawler.service.GatherService;
+import com.gm.demo.crawler.service.GatherServiceImpl;
 import com.gm.demo.crawler.service.MtCrawlerServiceImpl;
 import com.gm.help.base.Quick;
 import com.gm.model.response.HttpResult;
@@ -39,7 +39,7 @@ public class MtCrawlerController {
     @Autowired
     MtCrawlerServiceImpl mtCrawlerService;
     @Autowired
-    GatherService gatherService;
+    GatherServiceImpl gatherService;
 
     /**
      * Merchant json result.

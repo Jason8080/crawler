@@ -15,8 +15,6 @@ public class Gather implements Serializable {
 
     private String echo;
 
-    private String extracts;
-
     private String apiExample;
 
     private static final long serialVersionUID = 1L;
@@ -69,14 +67,6 @@ public class Gather implements Serializable {
         this.echo = echo == null ? null : echo.trim();
     }
 
-    public String getExtracts() {
-        return extracts;
-    }
-
-    public void setExtracts(String extracts) {
-        this.extracts = extracts == null ? null : extracts.trim();
-    }
-
     public String getApiExample() {
         return apiExample;
     }
@@ -97,7 +87,6 @@ public class Gather implements Serializable {
         sb.append(", data=").append(data);
         sb.append(", filters=").append(filters);
         sb.append(", echo=").append(echo);
-        sb.append(", extracts=").append(extracts);
         sb.append(", apiExample=").append(apiExample);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");

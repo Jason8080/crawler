@@ -28,7 +28,7 @@ public class SaveMetadataReq implements Serializable {
     @ApiModelProperty(value = "新字段名", required = true)
     @NotEmpty(message = "新字段名是空")
     @Length(min = 2, max = 20, message = "字段名长度2-20")
-    private String field;
+    private String[] fields;
 
     @ApiModelProperty(value = "数据类型", example = "varchar")
     @Length(min = 2, max = 20, message = "数据类型长度2-20")
