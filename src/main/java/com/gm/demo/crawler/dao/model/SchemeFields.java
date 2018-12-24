@@ -7,6 +7,8 @@ public class SchemeFields implements Serializable {
 
     private String tab;
 
+    private String page;
+
     private String data;
 
     private String filters;
@@ -33,6 +35,14 @@ public class SchemeFields implements Serializable {
 
     public void setTab(String tab) {
         this.tab = tab == null ? null : tab.trim();
+    }
+
+    public String getPage() {
+        return page;
+    }
+
+    public void setPage(String page) {
+        this.page = page == null ? null : page.trim();
     }
 
     public String getData() {
@@ -83,6 +93,7 @@ public class SchemeFields implements Serializable {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", tab=").append(tab);
+        sb.append(", page=").append(page);
         sb.append(", data=").append(data);
         sb.append(", filters=").append(filters);
         sb.append(", echo=").append(echo);
