@@ -104,8 +104,11 @@ public class MetadataServiceImpl {
     }
 
     public Boolean modify(ModifyMetadataReq req) {
+        Metadata old = metadataMapperExt.getMetadata(req.getTab(), req.getField());
         Metadata metadata = Bean.toBean(req, Metadata.class);
         tabMapper.alterModify(metadata);
+        metadata.setId(old.getId());
+        metadataMapper.updateByPrimaryKeySelective(metadata);
         return true;
     }
 
