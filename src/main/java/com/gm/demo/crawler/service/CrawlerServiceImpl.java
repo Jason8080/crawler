@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
  * @author Jason
  */
 @Service
-public class MtCrawlerServiceImpl {
+public class CrawlerServiceImpl {
 
     public static final String ID = "id";
     public static final String IS_CRAWL = "isCrawl";
@@ -46,10 +46,11 @@ public class MtCrawlerServiceImpl {
         Map<String, Object> map = Json.toMap(result.toLowerCase());
         // 美团的Json数据放在data里
         Object data = map.get(gather.getData().toLowerCase());
-        if (Bool.isNull(data)) {
-            ExceptionUtils.cast(Logger.error("美团数据是空,可能需要完善访问要求"));
+        if (!Bool.isNull(data)) {
+            map = Json.o2o(data, Map.class);
+        }else if(!Bool.isNull(gather.getData())){
+            ExceptionUtils.cast(Logger.error("数据是空,可能需要完善访问要求"));
         }
-        map = Json.o2o(data, Map.class);
         return map;
     }
 

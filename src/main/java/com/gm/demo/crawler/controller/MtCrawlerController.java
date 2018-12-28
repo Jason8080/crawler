@@ -3,7 +3,7 @@ package com.gm.demo.crawler.controller;
 import com.gm.demo.crawler.dao.model.Gather;
 import com.gm.demo.crawler.entity.req.CrawlReq;
 import com.gm.demo.crawler.service.GatherServiceImpl;
-import com.gm.demo.crawler.service.MtCrawlerServiceImpl;
+import com.gm.demo.crawler.service.CrawlerServiceImpl;
 import com.gm.help.base.Quick;
 import com.gm.model.response.HttpResult;
 import com.gm.model.response.JsonResult;
@@ -37,7 +37,7 @@ import java.util.Map;
 public class MtCrawlerController {
 
     @Autowired
-    MtCrawlerServiceImpl mtCrawlerService;
+    CrawlerServiceImpl crawlerService;
     @Autowired
     GatherServiceImpl gatherService;
 
@@ -92,7 +92,7 @@ public class MtCrawlerController {
                 }
             }
             String json = new String(result.getResult());
-            sum[0] += mtCrawlerService.handler(gather, json);
+            sum[0] += crawlerService.handler(gather, json);
             Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
             // 分页方案
             String parse = Logger.exec(r -> Rules.parse(page, gather.getPage().split(",")[0].split("=")[1]));
