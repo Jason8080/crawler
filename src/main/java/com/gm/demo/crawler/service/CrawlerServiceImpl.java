@@ -45,7 +45,7 @@ public class CrawlerServiceImpl {
         // 获取返回的Json对象｛全部小写｝
         Map<String, Object> map = Json.toMap(result.toLowerCase());
         // 美团的Json数据放在data里
-        Object data = map.get(gather.getData().toLowerCase());
+        Object data = map.get(Convert.toEmpty(gather.getData()).toLowerCase());
         if (!Bool.isNull(data)) {
             map = Json.o2o(data, Map.class);
         }else if(!Bool.isNull(gather.getData())){
@@ -104,7 +104,7 @@ public class CrawlerServiceImpl {
             checkFields(tab, fields, map);
         }
         // 去除特殊字符
-        metadataService.replace(maps, "`", "\'", "\"", "\\");
+        metadataService.replace(maps, "`", "\'", "\"", "\\", "\uD83D\uDE02");
         // 去重
         metadataService.distinct(tab, maps, filters);
         // 存储系统需求信息
@@ -129,7 +129,7 @@ public class CrawlerServiceImpl {
                 // 此字段数据信息
                 Metadata metadata = fields.get(key);
                 // 检测长度
-                if (metadata.getLen() < Convert.toEmpty(value).length()) {
+                if (!"text".equals(metadata.getDataType()) && metadata.getLen() < Convert.toEmpty(value).length()) {
                     SaveMetadataReq req = new SaveMetadataReq();
                     req.setTab(tab);
                     req.setFields(new String[]{metadata.getField()});

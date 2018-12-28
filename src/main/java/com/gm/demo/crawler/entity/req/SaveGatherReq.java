@@ -29,8 +29,7 @@ public class SaveGatherReq implements Serializable {
     private String page;
 
     @ApiModelProperty("数据存储字段")
-    @NotEmpty(message = "数据存储字段是空")
-    private String data;
+    private String data = "";
 
     @ApiModelProperty("数据列字段")
     @NotEmpty(message = "数据集字段是空")

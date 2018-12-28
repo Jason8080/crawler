@@ -17,7 +17,7 @@ import javax.validation.constraints.NotEmpty;
 public class ModifyMetadataReq {
     @ApiModelProperty(value = "字段名", required = true)
     @NotEmpty(message = "字段名是空")
-    @Length(min = 2, max = 10, message = "字段名长度2-10")
+    @Length(min = 2, max = 20, message = "字段名长度2-20")
     private String field;
 
     @ApiModelProperty(value = "数据类型", example = "varchar")
@@ -35,6 +35,6 @@ public class ModifyMetadataReq {
 
     @ApiModelProperty(value = "表名", required = true)
     @NotEmpty(message = "表名是空")
-    @Length(min = 2, max = 10, message = "表名长度2-10")
+    @Length(min = 2, max = 20, message = "表名长度2-20")
     private String tab;
 }
