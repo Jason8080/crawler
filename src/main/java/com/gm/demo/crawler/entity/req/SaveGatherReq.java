@@ -28,8 +28,8 @@ public class SaveGatherReq implements Serializable {
     @NotEmpty(message = "翻页方案是空")
     private String page;
 
-    @ApiModelProperty("数据存储字段")
-    private String data = "";
+    @ApiModelProperty("Json result format is data")
+    private String data;
 
     @ApiModelProperty("数据列字段")
     @NotEmpty(message = "数据集字段是空")
