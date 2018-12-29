@@ -48,7 +48,7 @@ public class CrawlerServiceImpl {
         Object data = map.get(Convert.toEmpty(gather.getData()).toLowerCase());
         if (!Bool.isNull(data)) {
             map = Json.o2o(data, Map.class);
-        }else if(!Bool.isNull(gather.getData())){
+        } else if (!Bool.isNull(gather.getData())) {
             ExceptionUtils.cast(Logger.error("数据是空,可能需要完善访问要求"));
         }
         return map;
@@ -104,7 +104,7 @@ public class CrawlerServiceImpl {
             checkFields(tab, fields, map);
         }
         // 去除特殊字符
-        metadataService.replace(maps, "`", "\'", "\"", "\\", "\uD83D\uDE02");
+        metadataService.replace(maps, "`", "\'", "\"", "\\");
         // 去重
         metadataService.distinct(tab, maps, filters);
         // 存储系统需求信息
@@ -134,7 +134,15 @@ public class CrawlerServiceImpl {
                     req.setTab(tab);
                     req.setFields(new String[]{metadata.getField()});
                     // 长度不够
-                    req.setLen(value.length() + 10);
+                    int len;
+                    if ("varchar".equals(req.getDataType())) {
+                        len = value.length() * 3 + 10;
+                        req.setLen(len > 255 ? 0 : len);
+                        req.setDataType(len > 255 ? "text" : req.getDataType());
+                    } else {
+                        len = value.length() + 1;
+                        req.setLen(len);
+                    }
                     metadataService.save(req);
                 }
             }

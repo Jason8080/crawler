@@ -204,7 +204,8 @@ public class MetadataServiceImpl {
                 Object value = next.getValue();
                 if (value instanceof String) {
                     for (CharSequence field : filters) {
-                        value = value.toString().replace(field, symbol);
+                        value = ((String) value).replace(field, symbol);
+                        value = ((String) value).replaceAll("[\\ud800\\udc00-\\udbff\\udfff\\ud800-\\udfff]", "`");
                     }
                     x.put(next.getKey(), value);
                 }
