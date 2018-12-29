@@ -49,7 +49,7 @@ public class CrawlerServiceImpl {
         if (!Bool.isNull(data)) {
             map = Json.o2o(data, Map.class);
         } else if (!Bool.isNull(gather.getData())) {
-            ExceptionUtils.cast(Logger.error("数据是空,可能需要完善访问要求"));
+            ExceptionUtils.process(Logger.error("数据是空,可能需要完善访问要求"));
         }
         return map;
     }
@@ -69,7 +69,7 @@ public class CrawlerServiceImpl {
             // 是个集合
             if (new Str(gather.getEcho().toLowerCase().split(",")).contains(next.getKey())) {
                 if (Bool.isNull(next.getValue())) {
-                    ExceptionUtils.cast(Logger.error(String.format("没有数据了%s", Json.toJson(map))));
+                    ExceptionUtils.process(Logger.error(String.format("没有数据了%s", Json.toJson(map))));
                 }
                 List<Map<String, Object>> cs = (List<Map<String, Object>>) next.getValue();
                 return handler(gather.getTab(), cs, gather.getFilters().toLowerCase().split(","));

@@ -2,8 +2,8 @@ package com.gm.demo.crawler.controller;
 
 import com.gm.demo.crawler.dao.model.Gather;
 import com.gm.demo.crawler.entity.req.CrawlReq;
-import com.gm.demo.crawler.service.GatherServiceImpl;
 import com.gm.demo.crawler.service.CrawlerServiceImpl;
+import com.gm.demo.crawler.service.GatherServiceImpl;
 import com.gm.help.base.Quick;
 import com.gm.model.response.HttpResult;
 import com.gm.model.response.JsonResult;
@@ -51,7 +51,7 @@ public class MtCrawlerController {
     @ApiOperation(value = "释放一只商家爬虫")
     public JsonResult merchant(@RequestBody @Valid CrawlReq req) {
         String format = String.format("提取方案{%s}不存在", req.getTab());
-        Gather gather = Assert.isNull(gatherService.getTab(req.getTab()), format);
+        Gather gather = Assert.Null(gatherService.getTab(req.getTab()), format);
         Integer total = pages(req.getUrl(), gather, req.getHeaders(), req.getParams());
         return JsonResult.as(total);
     }
@@ -66,7 +66,7 @@ public class MtCrawlerController {
     @ApiOperation(value = "释放一只评论爬虫")
     public JsonResult comment(@RequestBody @Valid CrawlReq req) {
         String format = String.format("请提取方案{%s}不存在", req.getTab());
-        Gather gather = Assert.isNull(gatherService.getTab(req.getTab()), format);
+        Gather gather = Assert.Null(gatherService.getTab(req.getTab()), format);
         Integer total = pages(req.getUrl(), gather, req.getHeaders(), req.getParams());
         return JsonResult.as(total);
     }
@@ -105,12 +105,12 @@ public class MtCrawlerController {
         String[] split = gather.getPage().split(",");
         if (split.length > 0) {
             String name = split[0].split("=")[0];
-            String offset = Convert.toEmpty(Web.getParam(url, name));
+            String offset = Convert.toEmpty(Web.getParam(url, name), "0");
             url = url.replace(name.concat("=").concat(offset), name.concat("=").concat(page.offset.toString()));
         }
         if (split.length > 1) {
             String name = split[1];
-            String pageSize = Convert.toEmpty(Web.getParam(url, name));
+            String pageSize = Convert.toEmpty(Web.getParam(url, name), "10");
             url = url.replace(name.concat("=").concat(pageSize), name.concat("=").concat(page.pageSize.toString()));
 
         }
