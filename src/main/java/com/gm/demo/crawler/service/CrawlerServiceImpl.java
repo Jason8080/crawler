@@ -135,10 +135,10 @@ public class CrawlerServiceImpl {
                     req.setFields(new String[]{metadata.getField()});
                     // 长度不够
                     int len;
-                    if ("varchar".equals(req.getDataType())) {
+                    if ("varchar".equals(metadata.getDataType())) {
                         len = value.length() * 3 + 10;
                         req.setLen(len > 255 ? 0 : len);
-                        req.setDataType(len > 255 ? "text" : req.getDataType());
+                        req.setDataType(len > 255 ? "text" : metadata.getDataType());
                     } else {
                         len = value.length() + 1;
                         req.setLen(len);
