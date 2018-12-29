@@ -1,7 +1,6 @@
 package com.gm.demo.crawler.controller;
 
 import com.gm.demo.crawler.entity.req.DataReq;
-import com.gm.demo.crawler.entity.req.DelGatherReq;
 import com.gm.demo.crawler.entity.req.SaveGatherReq;
 import com.gm.demo.crawler.service.DataServiceImpl;
 import com.gm.demo.crawler.service.GatherServiceImpl;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
-import javax.xml.crypto.Data;
 import java.util.Map;
 
 /**

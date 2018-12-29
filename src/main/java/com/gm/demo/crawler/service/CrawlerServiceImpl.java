@@ -20,68 +20,79 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
+ * The type Crawler service.
+ *
  * @author Jason
  */
 @Service
 public class CrawlerServiceImpl {
 
+    /**
+     * The constant ID.
+     */
     public static final String ID = "id";
+    /**
+     * The constant IS_CRAWL.
+     */
     public static final String IS_CRAWL = "isCrawl";
+    /**
+     * The constant DEFAULT_FIELD.
+     */
     public static final String[] DEFAULT_FIELD = {ID, IS_CRAWL};
 
+    /**
+     * The Tab mapper.
+     */
     @Autowired
     TabMapper tabMapper;
+    /**
+     * The Metadata service.
+     */
     @Autowired
     MetadataServiceImpl metadataService;
 
     /**
-     * 直接获取数据
+     * 根据方案收集路径收集数据
      *
      * @param result
      * @param gather
      * @return
      */
-    private Map<String, Object> getStringObjectMap(String result, Gather gather) {
+    private List<Map<String, Object>> getStringObjectMap(String result, Gather gather) {
         // 获取返回的Json对象｛全部小写｝
         Map<String, Object> map = Json.toMap(result.toLowerCase());
         // 美团的Json数据放在data里
-        Object data = map.get(Convert.toEmpty(gather.getData()).toLowerCase());
-        if (!Bool.isNull(data)) {
-            map = Json.o2o(data, Map.class);
-        } else if (!Bool.isNull(gather.getData())) {
-            ExceptionUtils.process(Logger.error("数据是空,可能需要完善访问要求"));
-        }
-        return map;
-    }
-
-    /**
-     * 评论列表处理.
-     *
-     * @param gather
-     * @param result the result
-     * @return the list
-     */
-    public Integer handler(Gather gather, String result) {
-        Map<String, Object> map = getStringObjectMap(result, gather);
-        Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<String, Object> next = it.next();
-            // 是个集合
-            if (new Str(gather.getEcho().toLowerCase().split(",")).contains(next.getKey())) {
-                if (Bool.isNull(next.getValue())) {
-                    ExceptionUtils.process(Logger.error(String.format("没有数据了%s", Json.toJson(map))));
-                }
-                List<Map<String, Object>> cs = (List<Map<String, Object>>) next.getValue();
-                return handler(gather.getTab(), cs, gather.getFilters().toLowerCase().split(","));
+        String[] split = gather.getData().split(",");
+        for (int i = 0; i < split.length; i++) {
+            Object data = map.get(split[i].toLowerCase());
+            if (i == split.length - 1) {
+                return (List<Map<String, Object>>) data;
+            } else if (!Bool.isNull(data)) {
+                map = Json.o2o(data, Map.class);
             }
         }
-        return 0;
+        return ExceptionUtils.process(Logger.error(String.format("数据收集失败! {%s}", gather.getData())));
     }
 
     /**
-     * 处理信息.
+     * 数据列表收集.
      *
-     * @param maps 数据信息
+     * @param gather 收集方案
+     * @param result JsonResult
+     * @return 收集储量
+     */
+    public Integer handler(Gather gather, String result) {
+        List<Map<String, Object>> cs = getStringObjectMap(result, gather);
+        return handler(gather.getTab(), cs, gather.getFilters().toLowerCase().split(","));
+    }
+
+    /**
+     * 处理数据集.
+     *
+     * @param tab     收集方案
+     * @param maps    数据集
+     * @param filters 过滤字段
+     * @return 处理数量
      */
     public Integer handler(String tab, List<Map<String, Object>> maps, String... filters) {
         if (maps.size() <= 0) {

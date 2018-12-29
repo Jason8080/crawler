@@ -13,8 +13,6 @@ public class Gather implements Serializable {
 
     private String filters;
 
-    private String echo;
-
     private String apiExample;
 
     private static final long serialVersionUID = 1L;
@@ -59,14 +57,6 @@ public class Gather implements Serializable {
         this.filters = filters == null ? null : filters.trim();
     }
 
-    public String getEcho() {
-        return echo;
-    }
-
-    public void setEcho(String echo) {
-        this.echo = echo == null ? null : echo.trim();
-    }
-
     public String getApiExample() {
         return apiExample;
     }
@@ -86,7 +76,6 @@ public class Gather implements Serializable {
         sb.append(", page=").append(page);
         sb.append(", data=").append(data);
         sb.append(", filters=").append(filters);
-        sb.append(", echo=").append(echo);
         sb.append(", apiExample=").append(apiExample);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
