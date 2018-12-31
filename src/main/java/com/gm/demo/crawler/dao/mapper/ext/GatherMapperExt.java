@@ -26,8 +26,8 @@ public interface GatherMapperExt {
      * @return the integer
      */
     @Insert({"<script>",
-            "insert into `gather` (`tab`,`page`,`data`,`filters`,`echo`,`api_example`)",
-            "values(#{req.tab},#{req.page},#{req.data},#{req.filters},#{req.echo},#{req.apiExample})",
+            "insert into `gather` (`tab`,`page`,`data`,`filters`,`api_example`)",
+            "values(#{req.tab},#{req.page},#{req.data},#{req.filters},#{req.apiExample})",
             "</script>"})
     @Options(useGeneratedKeys = true)
     Integer save(@Param("req") SaveGatherReq req);

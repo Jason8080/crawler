@@ -10,6 +10,7 @@ import com.gm.utils.base.Bean;
 import com.gm.utils.base.Bool;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 收集方案服务
@@ -32,6 +33,7 @@ public class GatherServiceImpl {
         return gatherMapperExt.getTab(tab);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public Integer save(SaveGatherReq req) {
         // 保存收集方案
         Gather gather = gatherMapperExt.getTab(req.getTab());

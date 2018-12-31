@@ -2,14 +2,16 @@ package com.gm.demo.crawler.controller;
 
 import com.gm.demo.crawler.dao.model.Gather;
 import com.gm.demo.crawler.entity.req.CrawlReq;
-import com.gm.demo.crawler.service.JsonCrawlerServiceImpl;
+import com.gm.demo.crawler.service.HtmlCrawlerServiceImpl;
 import com.gm.demo.crawler.service.GatherServiceImpl;
 import com.gm.help.base.Quick;
 import com.gm.model.response.HttpResult;
 import com.gm.model.response.JsonResult;
 import com.gm.strong.Rules;
+import com.gm.strong.Str;
 import com.gm.utils.base.Assert;
 import com.gm.utils.base.Convert;
+import com.gm.utils.base.ExceptionUtils;
 import com.gm.utils.base.Logger;
 import com.gm.utils.ext.Math;
 import com.gm.utils.ext.Web;
@@ -32,26 +34,18 @@ import java.util.Map;
  * @author Jason
  */
 @RestController
-@Api(tags = "美团爬虫控制器")
-@RequestMapping("mt/crawler")
-public class MtCrawlerController {
+@Api(tags = "赶集爬虫控制器")
+@RequestMapping("gj/crawler")
+public class GjCrawlerController {
+    String[] checkResult = {"验证码", "过于频繁"};
 
     @Autowired
-    JsonCrawlerServiceImpl jsonCrawlerService;
+    HtmlCrawlerServiceImpl htmlCrawlerService;
     @Autowired
     GatherServiceImpl gatherService;
 
-    @PostMapping("merchant")
-    @ApiOperation(value = "释放一只商家爬虫")
-    public JsonResult merchant(@RequestBody @Valid CrawlReq req) {
-        String format = String.format("提取方案{%s}不存在", req.getTab());
-        Gather gather = Assert.Null(gatherService.getTab(req.getTab()), format);
-        Integer total = pages(req.getUrl(), gather, req.getHeaders(), req.getParams());
-        return JsonResult.as(total);
-    }
-
-    @PostMapping("comment")
-    @ApiOperation(value = "释放一只评论爬虫")
+    @PostMapping("mobile")
+    @ApiOperation(value = "释放一只手机爬虫")
     public JsonResult comment(@RequestBody @Valid CrawlReq req) {
         String format = String.format("请提取方案{%s}不存在", req.getTab());
         Gather gather = Assert.Null(gatherService.getTab(req.getTab()), format);
@@ -69,18 +63,15 @@ public class MtCrawlerController {
      */
     private Integer pages(final String url, Gather gather, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
-        P page = new P(0, 100);
+        P page = new P(1, 100);
         Quick.echo(x -> {
-            String newUrl = getUrl(url, page, gather);
+            String newUrl = getUrl(url, page);
             HttpResult result = Http.doGet(newUrl, headers, params);
-            if (!JsonResult.SUCCESS.equals(result.getStatus())) {
-                result = Http.doPost(newUrl, headers, params);
-                if (!JsonResult.SUCCESS.equals(result.getStatus())) {
-                    JsonResult.unsuccessful(new String(result.getResult()));
-                }
+            String html = new String(result.getResult());
+            if(new Str(html).contains(checkResult)){
+                ExceptionUtils.process("要验证了~");
             }
-            String json = new String(result.getResult());
-            sum[0] += jsonCrawlerService.handler(gather, json);
+            sum[0] += htmlCrawlerService.handler(gather, html);
             Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
             // 分页方案
             String parse = Logger.exec(r -> Rules.parse(page, gather.getPage().split(",")[0].split("=")[1]));
@@ -89,19 +80,7 @@ public class MtCrawlerController {
         return sum[0];
     }
 
-    private String getUrl(String url, P page, Gather gather) {
-        String[] split = gather.getPage().split(",");
-        if (split.length > 0) {
-            String name = split[0].split("=")[0];
-            String offset = Convert.toEmpty(Web.getParam(url, name), "0");
-            url = url.replace(name.concat("=").concat(offset), name.concat("=").concat(page.offset.toString()));
-        }
-        if (split.length > 1) {
-            String name = split[1];
-            String pageSize = Convert.toEmpty(Web.getParam(url, name), "10");
-            url = url.replace(name.concat("=").concat(pageSize), name.concat("=").concat(page.pageSize.toString()));
-
-        }
+    private String getUrl(String url, P page) {
         return Rules.parse(page, url);
     }
 

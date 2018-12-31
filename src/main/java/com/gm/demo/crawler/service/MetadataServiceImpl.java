@@ -9,6 +9,7 @@ import com.gm.demo.crawler.entity.req.SaveMetadataReq;
 import com.gm.utils.base.Bean;
 import com.gm.utils.base.Bool;
 import com.gm.utils.base.Convert;
+import com.gm.utils.base.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -18,54 +19,29 @@ import javax.validation.Valid;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * The type Metadata service.
- *
- * @author Jason
- */
 @Service
 public class MetadataServiceImpl {
 
-    /**
-     * The constant ID.
-     */
     public static final String ID = "id";
 
-    /**
-     * The Tab mapper.
-     */
     @Autowired
     TabMapper tabMapper;
 
-    /**
-     * The Metadata mapper.
-     */
     @Autowired
     MetadataMapper metadataMapper;
 
-    /**
-     * The Metadata mapper ext.
-     */
     @Autowired
     MetadataMapperExt metadataMapperExt;
 
-    /**
-     * Gets tab.
-     *
-     * @param tab the tab
-     * @return the tab
-     */
+
+    @Autowired
+    MetadataServiceImpl metadataService;
+
     public List<Metadata> getTab(String tab) {
         return metadataMapperExt.getTab(tab);
     }
 
-    /**
-     * 保存元数据
-     *
-     * @param req the req
-     * @return integer integer
-     */
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class, propagation = Propagation.NOT_SUPPORTED)
     public Integer save(@Valid SaveMetadataReq req) {
         // 查找该表所有元数据
         List<Metadata> data = metadataMapperExt.getTab(req.getTab());
@@ -73,7 +49,7 @@ public class MetadataServiceImpl {
         if (Bool.isNull(data)) {
             data.add(createTab(req));
         }
-        Map<String, Metadata> map = data.stream().collect(Collectors.toMap(Metadata::getField, x->x));
+        Map<String, Metadata> map = data.stream().collect(Collectors.toMap(Metadata::getField, x -> x));
         Metadata metadata = Bean.toBean(req, Metadata.class);
         for (String field : req.getFields()) {
             // 此字段名称不一样
@@ -112,12 +88,6 @@ public class MetadataServiceImpl {
         return true;
     }
 
-    /**
-     * 创建表.
-     *
-     * @param req the req
-     * @return the integer
-     */
     @Transactional(rollbackFor = Exception.class, propagation = Propagation.REQUIRES_NEW)
     public Metadata createTab(@Valid SaveMetadataReq req) {
         Metadata id = new Metadata();
@@ -131,12 +101,6 @@ public class MetadataServiceImpl {
         return id;
     }
 
-    /**
-     * 删除表
-     *
-     * @param tab the tab
-     * @return boolean boolean
-     */
     @Transactional(rollbackFor = Exception.class)
     public Boolean dropTab(String tab) {
         metadataMapperExt.dropTab(tab);
@@ -144,28 +108,13 @@ public class MetadataServiceImpl {
         return true;
     }
 
-    /**
-     * 保存表数据.
-     *
-     * @param tab    the tab
-     * @param fields the fields
-     * @param maps   the maps
-     * @return the integer
-     */
     public Integer save(String tab, Collection<String> fields, Map<String, String>... maps) {
         if (maps.length > 0) {
             return tabMapper.save(tab, fields, maps);
         }
-        return 0;
+        return ExceptionUtils.process("这可能是最后1页了(没有新数据)!");
     }
 
-    /**
-     * 去重.
-     *
-     * @param tab     the tab
-     * @param maps    the maps
-     * @param filters the filters
-     */
     public void distinct(String tab, List<Map<String, Object>> maps, String... filters) {
         List<Map<String, Object>> exists = Bool.isNull(maps) ? new ArrayList() :
                 tabMapper.filters(tab, Arrays.asList(filters), maps.toArray(new HashMap[0]));
@@ -189,13 +138,6 @@ public class MetadataServiceImpl {
         }
     }
 
-    /**
-     * 替换特俗字符.
-     *
-     * @param maps    the maps
-     * @param symbol  the symbol
-     * @param filters the filters
-     */
     public void replace(List<Map<String, Object>> maps, String symbol, CharSequence... filters) {
         maps.stream().forEach(x -> {
             Iterator<Map.Entry<String, Object>> it = x.entrySet().iterator();
@@ -211,5 +153,43 @@ public class MetadataServiceImpl {
                 }
             }
         });
+    }
+
+    public void checkFields(String tab, Map<String, Metadata> fields, Map<String, Object> map) {
+        Map<String, String> def = fields.values().stream().filter(x -> !Bool.isNull(x.getDef())).collect(Collectors.toMap(Metadata::getField, x -> x.getDef()));
+        // 如果有默认值需要设置一下
+        Iterator<Map.Entry<String, String>> itDef = def.entrySet().iterator();
+        while (itDef.hasNext()) {
+            Map.Entry<String, String> defNext = itDef.next();
+            map.put(defNext.getKey(), defNext.getValue());
+        }
+        Iterator<Map.Entry<String, Object>> it = map.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<String, Object> next = it.next();
+            String key = next.getKey();
+            // 从字段将要存储值
+            String value = next.getValue() != null ? next.getValue().toString() : "";
+            if (fields.containsKey(key)) {
+                // 此字段数据信息
+                Metadata metadata = fields.get(key);
+                // 检测长度
+                if (!"text".equals(metadata.getDataType()) && metadata.getLen() < Convert.toEmpty(value).length()) {
+                    SaveMetadataReq req = new SaveMetadataReq();
+                    req.setTab(tab);
+                    req.setFields(new String[]{metadata.getField()});
+                    // 长度不够
+                    int len;
+                    if ("varchar".equals(metadata.getDataType())) {
+                        len = value.length() * 3 + 10;
+                        req.setLen(len > 255 ? 0 : len);
+                        req.setDataType(len > 255 ? "text" : metadata.getDataType());
+                    } else {
+                        len = value.length() + 1;
+                        req.setLen(len);
+                    }
+                    metadataService.save(req);
+                }
+            }
+        }
     }
 }
