@@ -112,7 +112,7 @@ public class MetadataServiceImpl {
         if (maps.length > 0) {
             return tabMapper.save(tab, fields, maps);
         }
-        return ExceptionUtils.process("这可能是最后1页了(没有新数据)!");
+        return ExceptionUtils.cast("这可能是最后1页了(没有新数据)!");
     }
 
     public void distinct(String tab, List<Map<String, Object>> maps, String... filters) {

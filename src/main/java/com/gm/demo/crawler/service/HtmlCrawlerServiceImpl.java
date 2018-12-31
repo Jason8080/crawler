@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author Jason
@@ -25,8 +26,9 @@ public class HtmlCrawlerServiceImpl extends CrawlerServiceImpl {
 
     public Integer handler(Gather gather, String html) {
         List<String> mobiles = Regex.find(html, Regexp.FIND_MOBILE.getCode());
+        List<String> distinct = mobiles.stream().distinct().collect(Collectors.toList());
         List<Map<String, Object>> maps = new ArrayList();
-        for (String mobile : mobiles) {
+        for (String mobile : distinct) {
             Map<String, Object> map = new HashMap(0);
             map.put("mobile", mobile);
             maps.add(map);
