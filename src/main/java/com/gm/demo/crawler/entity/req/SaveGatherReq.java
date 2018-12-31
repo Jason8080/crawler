@@ -25,7 +25,6 @@ public class SaveGatherReq implements Serializable {
     private String tab;
 
     @ApiModelProperty("翻页方案")
-    @NotEmpty(message = "翻页方案是空")
     private String page;
 
     @ApiModelProperty("数据存放路线")
