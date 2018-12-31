@@ -4,6 +4,7 @@ import com.gm.demo.crawler.dao.model.Gather;
 import com.gm.demo.crawler.entity.req.CrawlReq;
 import com.gm.demo.crawler.service.GatherServiceImpl;
 import com.gm.demo.crawler.service.LunaticCrawlerServiceImpl;
+import com.gm.enums.Regexp;
 import com.gm.help.base.Quick;
 import com.gm.model.response.HttpResult;
 import com.gm.model.response.JsonResult;
@@ -11,7 +12,6 @@ import com.gm.strong.Str;
 import com.gm.utils.base.Assert;
 import com.gm.utils.base.Logger;
 import com.gm.utils.ext.Regex;
-import com.gm.utils.ext.Web;
 import com.gm.utils.third.Http;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -56,21 +56,22 @@ public class LunaticCrawlerController {
     private Integer pages(String root, Gather gather, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
         Quick.loop(root, url -> {
-            HttpResult result = Http.doGet(url.toString(), headers, params);
-            String html = new String(result.getResult());
+            String newUrl = url.toString().startsWith("http") ? url.toString() : "http:".concat(url.toString());
+            HttpResult result = Quick.exec(x->Http.doGet(newUrl, headers, params));
+            String html = Quick.exec(x->new String(result.getResult()));
             if (new Str(html).contains(checkResult)) {
                 Logger.info("要验证了~");
             }
             sum[0] += lunaticCrawlerService.handler(gather, html);
-            Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(url.toString()));
-            List<String> urls = Regex.find(url.toString(), Web.urlPattern.pattern());
+            Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
+            List<String> urls = Regex.find(html, Regexp.FIND_URL.getCode());
             urls = urls
                     .stream()
                     .distinct()
                     .filter(x -> new Str(x).contains(gather.getData().split(",")))
                     .collect(Collectors.toList());
             urls.remove(root);
-            urls.remove(url.toString());
+            urls.remove(newUrl);
             return urls;
         });
         return sum[0];

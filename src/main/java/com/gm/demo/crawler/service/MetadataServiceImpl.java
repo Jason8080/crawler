@@ -9,7 +9,7 @@ import com.gm.demo.crawler.entity.req.SaveMetadataReq;
 import com.gm.utils.base.Bean;
 import com.gm.utils.base.Bool;
 import com.gm.utils.base.Convert;
-import com.gm.utils.base.ExceptionUtils;
+import com.gm.utils.base.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -112,7 +112,8 @@ public class MetadataServiceImpl {
         if (maps.length > 0) {
             return tabMapper.save(tab, fields, maps);
         }
-        return ExceptionUtils.cast("这可能是最后1页了(没有新数据)!");
+        Logger.info("这可能是最后1页了(没有新数据)!");
+        return 0;
     }
 
     public void distinct(String tab, List<Map<String, Object>> maps, String... filters) {
