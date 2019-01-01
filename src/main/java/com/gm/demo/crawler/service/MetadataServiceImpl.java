@@ -59,7 +59,7 @@ public class MetadataServiceImpl {
             // 设置默认元数据信息
             Metadata defMetadata = new Metadata();
             defMetadata.setDataType("varchar");
-            defMetadata.setLen(10);
+            defMetadata.setLen(11);
             // 补全目标元数据信息
             metadata = Bean.copy(Convert.toEmpty(oldMetadata, defMetadata), metadata);
             // 字段存在就更改
