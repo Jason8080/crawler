@@ -41,8 +41,9 @@ public class LunaticCrawlerServiceImpl extends CrawlerServiceImpl {
                 map.put("url", url);
                 maps.add(map);
             }
+            return handler(gather.getTab(), maps, gather.getFilters().split(","));
         }
-        return handler(gather.getTab(), maps, gather.getFilters().split(","));
+        return 0;
     }
 
     private boolean isBlacklist(String url) {
