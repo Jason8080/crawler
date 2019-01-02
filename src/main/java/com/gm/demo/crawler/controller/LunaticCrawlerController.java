@@ -85,7 +85,7 @@ public class LunaticCrawlerController {
                 if (!new Str(s).contains(gather.getData().split(","))
                         || !new Str(s).contains(domain)
                         || new Str(s).contains(urlExclude)
-                        || Convert.toEmpty(webExclude.get(getHttp(Web.nonArgs(s))), 0) > 3) {
+                        || Convert.toEmpty(webExclude.get(getHttp(Web.nonArgs(s))), 0) > 5) {
                     urls.remove(i--);
                 }
             }
