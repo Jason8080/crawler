@@ -83,7 +83,7 @@ public class MtCrawlerController {
             sum[0] += jsonCrawlerService.handler(gather, json);
             Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
             // 分页方案
-            String parse = Logger.exec(r -> Rules.parse(page, gather.getPage().split(",")[0].split("=")[1]));
+            String parse = Logger.exec(r -> Rules.parse(page, gather.getPage().split(",")[0].split("=")[1]), "美团分页失败");
             page.setOffset(Math.execute(parse, Integer.class));
         });
         return sum[0];

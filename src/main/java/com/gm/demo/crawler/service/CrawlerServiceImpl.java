@@ -1,8 +1,12 @@
 package com.gm.demo.crawler.service;
 
+import com.gm.demo.crawler.dao.model.Gather;
 import com.gm.demo.crawler.dao.model.Metadata;
 import com.gm.strong.Str;
 import com.gm.utils.base.Bool;
+import com.gm.utils.base.ExceptionUtils;
+import com.gm.utils.base.Logger;
+import com.gm.utils.ext.Json;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +27,22 @@ public class CrawlerServiceImpl {
 
     @Autowired
     MetadataServiceImpl metadataService;
+
+    public List<Map<String, Object>> getStringObjectMap(String result, Gather gather) {
+        // 获取返回的Json对象｛全部小写｝
+        Map<String, Object> map = Json.toMap(result.toLowerCase());
+        // 美团的Json数据放在data里
+        String[] split = gather.getData().split(",");
+        for (int i = 0; i < split.length; i++) {
+            Object data = map.get(split[i].toLowerCase());
+            if (i == split.length - 1) {
+                return (List<Map<String, Object>>) data;
+            } else if (!Bool.isNull(data)) {
+                map = Json.o2o(data, Map.class);
+            }
+        }
+        return ExceptionUtils.process(Logger.error(String.format("数据收集失败! {%s}", gather.getData())));
+    }
 
     public Integer handler(String tab, List<Map<String, Object>> maps, String... filters) {
         List<Metadata> data = metadataService.getTab(tab);

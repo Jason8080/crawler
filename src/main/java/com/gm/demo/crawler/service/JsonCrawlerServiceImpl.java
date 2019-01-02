@@ -31,22 +31,6 @@ public class JsonCrawlerServiceImpl extends CrawlerServiceImpl {
     @Autowired
     MetadataServiceImpl metadataService;
 
-    private List<Map<String, Object>> getStringObjectMap(String result, Gather gather) {
-        // 获取返回的Json对象｛全部小写｝
-        Map<String, Object> map = Json.toMap(result.toLowerCase());
-        // 美团的Json数据放在data里
-        String[] split = gather.getData().split(",");
-        for (int i = 0; i < split.length; i++) {
-            Object data = map.get(split[i].toLowerCase());
-            if (i == split.length - 1) {
-                return (List<Map<String, Object>>) data;
-            } else if (!Bool.isNull(data)) {
-                map = Json.o2o(data, Map.class);
-            }
-        }
-        return ExceptionUtils.process(Logger.error(String.format("数据收集失败! {%s}", gather.getData())));
-    }
-
     public Integer handler(Gather gather, String result) {
         List<Map<String, Object>> cs = getStringObjectMap(result, gather);
         return handler(gather.getTab(), cs, gather.getFilters().toLowerCase().split(","));
