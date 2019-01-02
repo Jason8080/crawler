@@ -5,6 +5,7 @@ import com.gm.demo.crawler.dao.mapper.ext.LunaticUrlFiltersMapperExt;
 import com.gm.demo.crawler.dao.model.Gather;
 import com.gm.enums.Regexp;
 import com.gm.strong.Str;
+import com.gm.utils.base.Bool;
 import com.gm.utils.base.Convert;
 import com.gm.utils.ext.Regex;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,7 @@ public class LunaticCrawlerServiceImpl extends CrawlerServiceImpl {
         List<String> mobiles = Regex.find(html, "([^\\d])((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18([0-3]|[5-9]))|(177))\\d{8}([^\\d])");
         mobiles = mobiles.stream().map(x -> x.substring(1, x.length() - 1)).distinct().collect(Collectors.toList());
         List<Map<String, Object>> maps = new ArrayList();
-        if(!isBlacklist(url)){
+        if(!Bool.isNull(mobiles) && !isBlacklist(url)){
             for (String mobile : mobiles) {
                 Map<String, Object> map = new HashMap(0);
                 map.put("title", title);

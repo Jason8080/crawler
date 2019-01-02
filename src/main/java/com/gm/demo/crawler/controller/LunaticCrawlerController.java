@@ -69,11 +69,11 @@ public class LunaticCrawlerController {
                 Logger.info("要验证了~");
             }
             Integer count = lunaticCrawlerService.handler(gather, newUrl, html);
-            if (count <= 0) {
-                String key = Web.nonArgs(newUrl);
-                int val = Convert.toEmpty(webExclude.get(key), 0);
-                webExclude.put(key, ++val);
-            }
+//            if (count <= 0) {
+//                String key = Web.nonArgs(newUrl);
+//                int val = Convert.toEmpty(webExclude.get(key), 0);
+//                webExclude.put(key, ++val);
+//            }
             sum[0] += count;
             Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
             List<String> urls = Regex.find(html, Regexp.FIND_URL.getCode());
@@ -85,7 +85,7 @@ public class LunaticCrawlerController {
                 if (!new Str(s).contains(gather.getData().split(","))
                         || !new Str(s).contains(domain)
                         || new Str(s).contains(urlExclude)
-                        || Convert.toEmpty(webExclude.get(getHttp(Web.nonArgs(s))), 0) > 5) {
+                        /*|| Convert.toEmpty(webExclude.get(getHttp(Web.nonArgs(s))), 0) > 5*/) {
                     urls.remove(i--);
                 }
             }
