@@ -52,4 +52,12 @@ public class JsonCrawlerServiceImpl extends CrawlerServiceImpl {
         return handler(gather.getTab(), cs, gather.getFilters().toLowerCase().split(","));
     }
 
+
+    @Override
+    public Integer handler(String tab, List<Map<String, Object>> maps, String... filters) {
+        if (maps.size() <= 0) {
+            ExceptionUtils.cast(Logger.error("没有数据了"));
+        }
+        return super.handler(tab, maps, filters);
+    }
 }
