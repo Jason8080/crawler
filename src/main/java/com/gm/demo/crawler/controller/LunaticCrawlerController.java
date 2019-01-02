@@ -66,6 +66,7 @@ public class LunaticCrawlerController {
         String domain = Web.getRootDomain(root);
         Quick.loop(root, url -> {
             String newUrl = url.toString().startsWith("http") ? url.toString() : "http:".concat(url.toString());
+            newUrl = newUrl.trim();
             HttpResult result = Http.doGet(newUrl, headers, params);
             String html = new String(Convert.toEmpty(result, new HttpResult()).getResult());
             if (new Str(html).contains(checkResult)) {
