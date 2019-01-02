@@ -3,8 +3,6 @@ package com.gm.demo.crawler.service;
 import com.gm.demo.crawler.dao.model.Metadata;
 import com.gm.strong.Str;
 import com.gm.utils.base.Bool;
-import com.gm.utils.base.ExceptionUtils;
-import com.gm.utils.base.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,9 +25,6 @@ public class CrawlerServiceImpl {
     MetadataServiceImpl metadataService;
 
     public Integer handler(String tab, List<Map<String, Object>> maps, String... filters) {
-        if (maps.size() <= 0) {
-            ExceptionUtils.cast(Logger.error("没有数据了"));
-        }
         List<Metadata> data = metadataService.getTab(tab);
         Map<String, Metadata> fields = data.stream()
                 .filter(x -> !new Str(DEFAULT_FIELD).contains(x.getField()))
