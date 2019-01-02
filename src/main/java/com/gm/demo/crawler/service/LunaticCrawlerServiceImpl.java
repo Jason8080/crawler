@@ -53,4 +53,8 @@ public class LunaticCrawlerServiceImpl extends CrawlerServiceImpl {
         }
         return false;
     }
+
+    public Set<String> getAll() {
+        return lunaticUrlFiltersMapperExt.getAll();
+    }
 }
