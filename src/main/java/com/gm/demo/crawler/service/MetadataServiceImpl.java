@@ -112,7 +112,6 @@ public class MetadataServiceImpl {
         if (maps.length > 0) {
             return tabMapper.save(tab, fields, maps);
         }
-        Logger.info("这可能是最后1页了(没有新数据)!");
         return 0;
     }
 

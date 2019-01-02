@@ -10,7 +10,6 @@ import com.gm.model.response.HttpResult;
 import com.gm.model.response.JsonResult;
 import com.gm.strong.Str;
 import com.gm.utils.base.Assert;
-import com.gm.utils.base.Collection;
 import com.gm.utils.base.Convert;
 import com.gm.utils.base.Logger;
 import com.gm.utils.ext.Regex;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import sun.rmi.runtime.Log;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
@@ -66,16 +66,15 @@ public class LunaticCrawlerController {
         String domain = Web.getRootDomain(root);
         Quick.loop(root, url -> {
             String newUrl = url.toString().startsWith("http") ? url.toString() : "http:".concat(url.toString());
-            newUrl = newUrl.trim();
-            HttpResult result = Http.doGet(newUrl, headers, params);
+            HttpResult result = Quick.exec(x -> Http.doGet(newUrl, headers, params));
             String html = new String(Convert.toEmpty(result, new HttpResult()).getResult());
             if (new Str(html).contains(checkResult)) {
                 Logger.info("要验证了~");
             }
             Integer count = lunaticCrawlerService.handler(gather, newUrl, html);
-            if(count<=0){
+            if (count <= 0) {
                 String key = Web.nonArgs(newUrl);
-                int val = Convert.toEmpty(webExclude.get(key),0);
+                int val = Convert.toEmpty(webExclude.get(key), 0);
                 webExclude.put(key, ++val);
             }
             sum[0] += count;
@@ -90,7 +89,7 @@ public class LunaticCrawlerController {
                 if (!new Str(s).contains(gather.getData().split(","))
                         || !new Str(s).contains(domain)
                         || new Str(s).contains(urlExclude)
-                        || Convert.toEmpty(webExclude.get(Web.nonArgs(s)),0) > 3) {
+                        || Convert.toEmpty(webExclude.get(Web.nonArgs(s)), 0) > 3) {
                     urls.remove(i--);
                 }
             }
