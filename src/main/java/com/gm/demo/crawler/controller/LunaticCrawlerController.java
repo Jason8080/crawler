@@ -63,6 +63,7 @@ public class LunaticCrawlerController {
     private Integer pages(String root, Gather gather, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
         List<String> past = new ArrayList();
+        String domain = Web.getRootDomain(root);
         Quick.loop(root, url -> {
             String newUrl = url.toString().startsWith("http") ? url.toString() : "http:".concat(url.toString());
             HttpResult result = Http.doGet(newUrl, headers, params);
@@ -86,7 +87,7 @@ public class LunaticCrawlerController {
                 s = s.trim();
                 urls.set(i, s);
                 if (!new Str(s).contains(gather.getData().split(","))
-                        /*|| new Str(s).contains(urlContain) */
+                        || !new Str(s).contains(domain)
                         || new Str(s).contains(urlExclude)
                         || Convert.toEmpty(webExclude.get(Web.getDomain(s)),0) > 3) {
                     urls.remove(i--);
