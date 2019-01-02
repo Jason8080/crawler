@@ -73,7 +73,7 @@ public class LunaticCrawlerController {
             }
             Integer count = lunaticCrawlerService.handler(gather, newUrl, html);
             if(count<=0){
-                String key = Web.getDomain(newUrl);
+                String key = Web.nonArgs(newUrl);
                 int val = Convert.toEmpty(webExclude.get(key),0);
                 webExclude.put(key, ++val);
             }
@@ -89,7 +89,7 @@ public class LunaticCrawlerController {
                 if (!new Str(s).contains(gather.getData().split(","))
                         || !new Str(s).contains(domain)
                         || new Str(s).contains(urlExclude)
-                        || Convert.toEmpty(webExclude.get(Web.getDomain(s)),0) > 3) {
+                        || Convert.toEmpty(webExclude.get(Web.nonArgs(s)),0) > 3) {
                     urls.remove(i--);
                 }
             }
