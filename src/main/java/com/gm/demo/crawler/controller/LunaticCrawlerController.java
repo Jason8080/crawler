@@ -22,10 +22,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import sun.rmi.runtime.Log;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,10 +60,9 @@ public class LunaticCrawlerController {
 
     private Integer pages(String root, Gather gather, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
-        List<String> past = new ArrayList();
         String domain = Web.getRootDomain(root);
         Quick.loop(root, url -> {
-            String newUrl = url.toString().startsWith("http") ? url.toString() : "http:".concat(url.toString());
+            String newUrl = getHttp(url.toString());
             HttpResult result = Quick.exec(x -> Http.doGet(newUrl, headers, params));
             String html = new String(Convert.toEmpty(result, new HttpResult()).getResult());
             if (new Str(html).contains(checkResult)) {
@@ -80,7 +77,6 @@ public class LunaticCrawlerController {
             sum[0] += count;
             Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
             List<String> urls = Regex.find(html, Regexp.FIND_URL.getCode());
-            past.add(url.toString());
             for (int i = 0; i < urls.size(); i++) {
                 String s = urls.get(i);
                 s = s.replaceAll("amp;", "");
@@ -89,13 +85,16 @@ public class LunaticCrawlerController {
                 if (!new Str(s).contains(gather.getData().split(","))
                         || !new Str(s).contains(domain)
                         || new Str(s).contains(urlExclude)
-                        || Convert.toEmpty(webExclude.get(Web.nonArgs(s)), 0) > 3) {
+                        || Convert.toEmpty(webExclude.get(getHttp(Web.nonArgs(s))), 0) > 3) {
                     urls.remove(i--);
                 }
             }
-            urls.removeAll(past);
             return urls;
         });
         return sum[0];
+    }
+
+    private String getHttp(String url) {
+        return url.startsWith("http") ? url : "http:".concat(url);
     }
 }
