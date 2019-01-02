@@ -70,7 +70,7 @@ public class LunaticCrawlerController {
             if (new Str(html).contains(checkResult)) {
                 Logger.info("要验证了~");
             }
-            Integer count = lunaticCrawlerService.handler(gather, html);
+            Integer count = lunaticCrawlerService.handler(gather, newUrl, html);
             if(count<=0){
                 String key = Web.getDomain(newUrl);
                 int val = Convert.toEmpty(webExclude.get(key),0);

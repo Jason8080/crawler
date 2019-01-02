@@ -25,12 +25,13 @@ public class LunaticCrawlerServiceImpl extends CrawlerServiceImpl {
     @Autowired
     MetadataServiceImpl metadataService;
 
-    public Integer handler(Gather gather, String html) {
+    public Integer handler(Gather gather, String url, String html) {
         List<String> mobiles = Regex.find(html, Regexp.FIND_MOBILE.getCode());
         mobiles = mobiles.stream().distinct().collect(Collectors.toList());
         List<Map<String, Object>> maps = new ArrayList();
         for (String mobile : mobiles) {
             Map<String, Object> map = new HashMap(0);
+            map.put("url", url);
             map.put("mobile", mobile);
             maps.add(map);
         }
