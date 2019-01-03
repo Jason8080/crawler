@@ -32,20 +32,23 @@ public class LunaticCrawlerServiceImpl extends CrawlerServiceImpl {
     LunaticUrlFiltersMapperExt lunaticUrlFiltersMapperExt;
 
     private static final String span_suffix = "</span>";
+
     private static final String span_prefix = "<span data-spm-anchor-id=";
+
     private static final String dyn_regexp = ".*>";
-    private static final String store_regex = span_prefix + dyn_regexp +".*"+ span_suffix;
+
+    private static final String store_regex = span_prefix + dyn_regexp + ".*" + span_suffix;
 
     public Integer handlerGoods(SearchCrawlReq req, Gather gather, String url, String html) {
 
         List<String> spans = Regex.find(html, store_regex);
-        List<String> stores = spans.stream().map(span->{
+        List<String> stores = spans.stream().map(span -> {
             span = span.substring(span_prefix.length(), span.lastIndexOf(span_suffix));
             return span.replaceFirst(dyn_regexp, "");
         }).collect(Collectors.toList());
-        for (int i =1; i<=stores.size(); i++){
+        for (int i = 1; i <= stores.size(); i++) {
             String store = stores.get(i);
-            if(store.contains(req.getTitle())){
+            if (store.contains(req.getTitle())) {
                 return ExceptionUtils.process(String.format("找到你的商品在第%s个%s", i, url));
             }
         }
@@ -56,7 +59,7 @@ public class LunaticCrawlerServiceImpl extends CrawlerServiceImpl {
 
         String source = "<span data-spm-anchor-id=\"a230r.1.14.i0.61fd6afaZLpS83\">友艺阁旗舰店</span>";
         List<String> spans = Regex.find(source, store_regex);
-        List<String> stores = spans.stream().map(span->{
+        List<String> stores = spans.stream().map(span -> {
             span = span.substring(span_prefix.length(), span.lastIndexOf(span_suffix));
             return span.replaceFirst(dyn_regexp, "");
         }).collect(Collectors.toList());
