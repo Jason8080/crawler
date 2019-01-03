@@ -2,16 +2,19 @@ package com.gm.demo.crawler.controller;
 
 import com.gm.demo.crawler.dao.model.Gather;
 import com.gm.demo.crawler.entity.req.CrawlReq;
+import com.gm.demo.crawler.entity.req.SearchCrawlReq;
 import com.gm.demo.crawler.service.GatherServiceImpl;
 import com.gm.demo.crawler.service.LunaticCrawlerServiceImpl;
 import com.gm.enums.Regexp;
 import com.gm.help.base.Quick;
 import com.gm.model.response.HttpResult;
 import com.gm.model.response.JsonResult;
+import com.gm.strong.Rules;
 import com.gm.strong.Str;
 import com.gm.utils.base.Assert;
 import com.gm.utils.base.Convert;
 import com.gm.utils.base.Logger;
+import com.gm.utils.ext.Math;
 import com.gm.utils.ext.Regex;
 import com.gm.utils.ext.Web;
 import com.gm.utils.third.Http;
@@ -36,12 +39,13 @@ import java.util.Map;
 @RestController
 @Api(tags = "丧心病狂控制器")
 @RequestMapping("lunatic")
-public class LunaticCrawlerController {
+public class LunaticCrawlerController extends BaseController {
 
-    String[] checkResult = {"HTTP 404 Not Found", "验证码", "过于频繁"};
-    String[] urlContain = {"58.com"};
+    String[] checkResult = {"HTTP 404 Not Found", "验证", "过于频繁"};
+
     Map<String, Integer> webExclude = new HashMap();
-    String[] urlExclude = {".jpg", ".png", ".gif", ".js", ".css", "down", ".exe", ".zip", "apple.com", "about"};
+
+    String[] urlExclude = {".jpg", ".png", ".gif", ".js", ".css", "down", ".exe", ".zip"};
 
     @Autowired
     GatherServiceImpl gatherService;
@@ -51,24 +55,59 @@ public class LunaticCrawlerController {
 
     @PostMapping("mobile")
     @ApiOperation(value = "释放一只手机爬虫")
-    public JsonResult comment(@RequestBody @Valid CrawlReq req) {
+    public JsonResult mobile(@RequestBody @Valid SearchCrawlReq req) {
+
         String format = String.format("请提取方案{%s}不存在", req.getTab());
         Gather gather = Assert.Null(gatherService.getTab(req.getTab()), format);
-        Integer total = pages(req.getUrl(), gather, req.getHeaders(), req.getParams());
+        Integer total = mobilePages(req, gather);
         return JsonResult.as(total);
     }
 
-    private Integer pages(String root, Gather gather, Map<String, String> headers, Map<String, Object> params) {
+    @PostMapping("store")
+    @ApiOperation(value = "释放一只店铺爬虫")
+    public JsonResult store(@RequestBody @Valid SearchCrawlReq req) {
+
+        String format = String.format("请提取方案{%s}不存在", req.getTab());
+        Gather gather = Assert.Null(gatherService.getTab(req.getTab()), format);
+        Integer total = storePages(req, gather);
+        return JsonResult.as(total);
+    }
+
+    private Integer storePages(SearchCrawlReq req, Gather gather) {
+
         Integer[] sum = {0};
-        String domain = Web.getRootDomain(root);
-        Quick.loop(root, url -> {
-            String newUrl = getHttp(url.toString());
-            HttpResult result = Quick.exec(x -> Http.doGet(newUrl, headers, params));
+        Page page = new Page(0, 100);
+        String root = Web.replace(req.getUrl(), "q", req.getKeyword());
+        Quick.echo(z -> {
+            String newUrl = getUrl(root, page, gather);
+            HttpResult result = Quick.exec(x -> Http.doGet(newUrl, req.getHeaders(), req.getParams()));
             String html = new String(Convert.toEmpty(result, new HttpResult()).getResult());
             if (new Str(html).contains(checkResult)) {
                 Logger.info("要验证了~");
             }
-            Integer count = lunaticCrawlerService.handler(gather, newUrl, html);
+            sum[0] += lunaticCrawlerService.handlerGoods(req, gather, newUrl, html);
+            int i = sum[0].intValue() / 44;
+            Logger.debug(("gather:   "+i).concat("\n").concat(newUrl));
+            // 分页方案
+            String parse = Logger.exec(r -> Rules.parse(page, gather.getPage().split(",")[0].split("=")[1]), "赶集分页失败");
+            page.setOffset(Math.execute(parse, Integer.class));
+        });
+        return sum[0];
+    }
+
+    private Integer mobilePages(SearchCrawlReq req, Gather gather) {
+
+        Integer[] sum = {0};
+        String domain = Web.getRootDomain(req.getUrl());
+        String root = Web.replace(req.getUrl(), "key", req.getKeyword());
+        Quick.loop(root, url -> {
+            String newUrl = getHttp(url.toString());
+            HttpResult result = Quick.exec(x -> Http.doGet(newUrl, req.getHeaders(), req.getParams()));
+            String html = new String(Convert.toEmpty(result, new HttpResult()).getResult());
+            if (new Str(html).contains(checkResult)) {
+                Logger.info("要验证了~");
+            }
+            Integer count = lunaticCrawlerService.handlerMobile(gather, newUrl, html);
             if (count <= 0) {
                 String key = Web.nonArgs(newUrl);
                 int val = Convert.toEmpty(webExclude.get(key), 0);
@@ -92,9 +131,5 @@ public class LunaticCrawlerController {
             return urls;
         });
         return sum[0];
-    }
-
-    private String getHttp(String url) {
-        return url.startsWith("http") ? url : "http:".concat(url);
     }
 }

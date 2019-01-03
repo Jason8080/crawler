@@ -20,14 +20,14 @@ public class CrawlReq implements Serializable {
     @Pattern(message = "目标网址格式错误",
             regexp = "^(http|ftp|https):\\/\\/[\\w\\-_]+(\\.[\\w\\-_]+)+([\\w\\-\\.,@?^=%&amp;:/~\\+#\\[\\]]*[\\w\\-\\@?^=%&amp;/~\\+#])?$"
     )
-    private String url;
+    protected String url;
 
     @ApiModelProperty(value = "提取方案", required = true)
     @NotEmpty(message = "提取方案是空")
-    private String tab;
+    protected String tab;
 
     @ApiModelProperty("请求头")
     private Map<String, String> headers;
     @ApiModelProperty("请求参")
-    private Map<String, Object> params;
+    protected Map<String, Object> params;
 }

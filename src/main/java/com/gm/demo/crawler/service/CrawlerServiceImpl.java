@@ -31,17 +31,19 @@ public class CrawlerServiceImpl {
     public List<Map<String, Object>> getStringObjectMap(String result, Gather gather) {
         // 获取返回的Json对象｛全部小写｝
         Map<String, Object> map = Json.toMap(result.toLowerCase());
-        // 美团的Json数据放在data里
-        String[] split = gather.getData().split(",");
-        for (int i = 0; i < split.length; i++) {
-            Object data = map.get(split[i].toLowerCase());
-            if (i == split.length - 1) {
-                return (List<Map<String, Object>>) data;
-            } else if (!Bool.isNull(data)) {
-                map = Json.o2o(data, Map.class);
+        if(!Bool.isNull(map)) {
+            // 美团的Json数据放在data里
+            String[] split = gather.getData().split(",");
+            for (int i = 0; i < split.length; i++) {
+                Object data = map.get(split[i].toLowerCase());
+                if (i == split.length - 1) {
+                    return (List<Map<String, Object>>) data;
+                } else if (!Bool.isNull(data)) {
+                    map = Json.o2o(data, Map.class);
+                }
             }
         }
-        return ExceptionUtils.process(Logger.error(String.format("数据收集失败! {%s}", gather.getData())));
+        return ExceptionUtils.process(Logger.error(String.format("收集数据失败!\n{%s}", result)));
     }
 
     public Integer handler(String tab, List<Map<String, Object>> maps, String... filters) {

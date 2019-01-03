@@ -1,9 +1,9 @@
 package com.gm.demo.crawler.service;
 
 import com.gm.demo.crawler.dao.model.Gather;
-import com.gm.demo.crawler.entity.req.TaoBaoCrawlReq;
+import com.gm.demo.crawler.entity.req.SearchCrawlReq;
 import com.gm.utils.base.Bool;
-import com.gm.utils.base.ExceptionUtils;
+import com.gm.utils.base.Num;
 import com.gm.utils.ext.Regex;
 import org.springframework.stereotype.Service;
 
@@ -15,29 +15,32 @@ import java.util.Map;
  */
 @Service
 public class TbCrawlerServiceImpl extends CrawlerServiceImpl {
-    public Integer handler(TaoBaoCrawlReq req, Gather gather, String content) {
-        String first = Regex.findFirst(content, "jsonp[0-9]?(");
-        content = content.replaceFirst(first, "");
-        content = content.substring(0, content.length() - 1);
+
+    public Integer handler(SearchCrawlReq req, Gather gather, String content) {
+
+        String first = Regex.findFirst(content, "jsonp[0-9]*\\(");
+        content = content.replace(first, "");
+        int len = content.length() - 2;
+        content = content.substring(0, Num.nature(len));
         List<Map<String, Object>> maps = getStringObjectMap(content, gather);
-        String[] filters = gather.getFilters().split(",");
         for (int i = 0; i < maps.size(); i++) {
             Map<String, Object> map = maps.get(i);
             boolean b = true;
             for (int j = 0; b; j++) {
                 String key = req.getKey(j);
                 String val = req.getVal(j);
-                if (!Bool.contains(filters, key)) {
-                    ExceptionUtils.process(String.format("查询项{%s}不存在", key));
-                }
-                Object o = map.get(key);
-                if (o == null) {
-                    b = false;
-                } else if (val.contains(o.toString())) {
-                    return i;
+                if (Bool.haveNull(key, val)) {
+                    Object o = map.get(key);
+                    if (o == null || !val.contains(o.toString())) {
+                        b = false;
+                    }
                 }
             }
+            // 不符合要求
+            if (!b) {
+                maps.remove(i--);
+            }
         }
-        return 44;
+        return handler(gather.getTab(), maps, gather.getFilters().split(","));
     }
 }

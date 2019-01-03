@@ -2,21 +2,18 @@ package com.gm.demo.crawler.controller;
 
 import com.gm.demo.crawler.dao.model.Gather;
 import com.gm.demo.crawler.entity.req.CrawlReq;
-import com.gm.demo.crawler.service.JsonCrawlerServiceImpl;
 import com.gm.demo.crawler.service.GatherServiceImpl;
+import com.gm.demo.crawler.service.JsonCrawlerServiceImpl;
 import com.gm.help.base.Quick;
 import com.gm.model.response.HttpResult;
 import com.gm.model.response.JsonResult;
 import com.gm.strong.Rules;
 import com.gm.utils.base.Assert;
-import com.gm.utils.base.Convert;
 import com.gm.utils.base.Logger;
 import com.gm.utils.ext.Math;
-import com.gm.utils.ext.Web;
 import com.gm.utils.third.Http;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,7 +31,7 @@ import java.util.Map;
 @RestController
 @Api(tags = "美团爬虫控制器")
 @RequestMapping("mt/crawler")
-public class MtCrawlerController {
+public class MtCrawlerController extends BaseController {
 
     @Autowired
     JsonCrawlerServiceImpl jsonCrawlerService;
@@ -69,7 +66,7 @@ public class MtCrawlerController {
      */
     private Integer pages(final String url, Gather gather, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
-        P page = new P(0, 100);
+        Page page = new Page(0, 100);
         Quick.echo(x -> {
             String newUrl = getUrl(url, page, gather);
             HttpResult result = Http.doGet(newUrl, headers, params);
@@ -87,45 +84,5 @@ public class MtCrawlerController {
             page.setOffset(Math.execute(parse, Integer.class));
         });
         return sum[0];
-    }
-
-    private String getUrl(String url, P page, Gather gather) {
-        String[] split = gather.getPage().split(",");
-        if (split.length > 0) {
-            String name = split[0].split("=")[0];
-            String offset = Convert.toEmpty(Web.getParam(url, name), "0");
-            url = url.replace(name.concat("=").concat(offset), name.concat("=").concat(page.offset.toString()));
-        }
-        if (split.length > 1) {
-            String name = split[1];
-            String pageSize = Convert.toEmpty(Web.getParam(url, name), "10");
-            url = url.replace(name.concat("=").concat(pageSize), name.concat("=").concat(page.pageSize.toString()));
-
-        }
-        return Rules.parse(page, url);
-    }
-
-    /**
-     * 分页对象
-     */
-    @Data
-    static class P {
-        private Integer offset;
-        private Integer pageSize;
-
-        public P(Integer offset) {
-            this.offset = offset;
-        }
-
-        /**
-         * Instantiates a new P.
-         *
-         * @param offset   the offset
-         * @param pageSize the page size
-         */
-        public P(Integer offset, Integer pageSize) {
-            this.offset = offset;
-            this.pageSize = pageSize;
-        }
     }
 }

@@ -10,15 +10,12 @@ import com.gm.model.response.JsonResult;
 import com.gm.strong.Rules;
 import com.gm.strong.Str;
 import com.gm.utils.base.Assert;
-import com.gm.utils.base.Convert;
 import com.gm.utils.base.ExceptionUtils;
 import com.gm.utils.base.Logger;
 import com.gm.utils.ext.Math;
-import com.gm.utils.ext.Web;
 import com.gm.utils.third.Http;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,7 +33,7 @@ import java.util.Map;
 @RestController
 @Api(tags = "赶集爬虫控制器")
 @RequestMapping("gj/crawler")
-public class GjCrawlerController {
+public class GjCrawlerController extends BaseController {
     String[] checkResult = {"验证码", "过于频繁"};
 
     @Autowired
@@ -63,9 +60,9 @@ public class GjCrawlerController {
      */
     private Integer pages(final String url, Gather gather, Map<String, String> headers, Map<String, Object> params) {
         Integer[] sum = {0};
-        P page = new P(1, 100);
+        Page page = new Page(1, 100);
         Quick.echo(x -> {
-            String newUrl = getUrl(url, page);
+            String newUrl = getUrl(url, page, gather);
             HttpResult result = Http.doGet(newUrl, headers, params);
             String html = new String(result.getResult());
             if(new Str(html).contains(checkResult)){
@@ -78,33 +75,5 @@ public class GjCrawlerController {
             page.setOffset(Math.execute(parse, Integer.class));
         });
         return sum[0];
-    }
-
-    private String getUrl(String url, P page) {
-        return Rules.parse(page, url);
-    }
-
-    /**
-     * 分页对象
-     */
-    @Data
-    static class P {
-        private Integer offset;
-        private Integer pageSize;
-
-        public P(Integer offset) {
-            this.offset = offset;
-        }
-
-        /**
-         * Instantiates a new P.
-         *
-         * @param offset   the offset
-         * @param pageSize the page size
-         */
-        public P(Integer offset, Integer pageSize) {
-            this.offset = offset;
-            this.pageSize = pageSize;
-        }
     }
 }

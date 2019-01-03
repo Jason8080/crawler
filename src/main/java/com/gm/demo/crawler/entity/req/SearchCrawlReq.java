@@ -9,11 +9,14 @@ import org.hibernate.validator.constraints.Length;
  * @author Jason
  */
 @Data
-@ApiModel("淘宝爬虫请求")
-public class TaoBaoCrawlReq extends CrawlReq {
+@ApiModel("搜索爬虫请求")
+public class SearchCrawlReq extends CrawlReq {
     @ApiModelProperty("指定关键词")
     @Length(min = 1, max = 10, message = "关键词长度1-10")
     private String keyword;
+    @ApiModelProperty("指定旺旺号")
+    @Length(min = 1, max = 10, message = "旺旺号长度1-10")
+    private String title;
     @ApiModelProperty("查询项")
     private String[] items;
     @ApiModelProperty("查询值")
