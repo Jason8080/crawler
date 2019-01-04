@@ -102,12 +102,12 @@ public class LunaticCrawlerController extends BaseController {
         String domain = Web.getRootDomain(req.getUrl());
         Quick.loop(req.getUrl(), url -> {
             String newUrl = getHttp(url.toString());
-            String html = "";
+            byte[] bytes = {};
             String key = Web.nonArgs(newUrl);
             if (Convert.toEmpty(webExclude.get(key), Cn.ZERO) < Cn.THREE) {
                 HttpResult result = Quick.exec(x -> Http.doGet(newUrl, req.getHeaders(), req.getParams()));
-                html = new String(Convert.toEmpty(result, new HttpResult()).getResult());
-                Integer count = lunaticCrawlerService.handlerMobile(req, gather, newUrl, html);
+                bytes = Convert.toEmpty(result, new HttpResult()).getResult();
+                Integer count = lunaticCrawlerService.handlerMobile(req, gather, newUrl, bytes);
                 sum[0] += count;
                 if (count <= Cn.ZERO) {
                     int val = Convert.toEmpty(webExclude.get(key), Cn.ZERO);
@@ -118,7 +118,7 @@ public class LunaticCrawlerController extends BaseController {
                     Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
                 }
             }
-            List<String> urls = Regex.find(html, Regexp.FIND_URL.getCode());
+            List<String> urls = Regex.find(new String(bytes), Regexp.FIND_URL.getCode());
             for (int i = 0; i < urls.size(); i++) {
                 String s = urls.get(i);
                 s = s.replaceAll("amp;", "");

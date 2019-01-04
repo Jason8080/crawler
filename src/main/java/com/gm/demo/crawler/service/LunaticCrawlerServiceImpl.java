@@ -5,6 +5,7 @@ import com.gm.demo.crawler.dao.mapper.ext.LunaticUrlFiltersMapperExt;
 import com.gm.demo.crawler.dao.model.Gather;
 import com.gm.demo.crawler.entity.req.SearchCrawlReq;
 import com.gm.enums.Regexp;
+import com.gm.help.base.Quick;
 import com.gm.strong.Str;
 import com.gm.utils.base.Bool;
 import com.gm.utils.base.Convert;
@@ -13,6 +14,7 @@ import com.gm.utils.ext.Regex;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -57,20 +59,26 @@ public class LunaticCrawlerServiceImpl extends CrawlerServiceImpl {
 
     public static void main(String[] args) {
 
-        String source = "<span data-spm-anchor-id=\"a230r.1.14.i0.61fd6afaZLpS83\">友艺阁旗舰店</span>";
-        List<String> spans = Regex.find(source, store_regex);
-        List<String> stores = spans.stream().map(span -> {
-            span = span.substring(span_prefix.length(), span.lastIndexOf(span_suffix));
-            return span.replaceFirst(dyn_regexp, "");
-        }).collect(Collectors.toList());
-        System.out.println(stores);
+        String meta = Convert.toEmpty(Regex.findFirst("<meta id=\"55\" charset=\"Utf-8\">", "<meta.*charset=\".*\">"), "<meta charset=\"UTF-8\">");
+        String[] split = meta.split("charset=\"");
+        String charset = split[1].split("\"")[0];
+        System.out.println(charset);
+
+//        String source = "<span data-spm-anchor-id=\"a230r.1.14.i0.61fd6afaZLpS83\">友艺阁旗舰店</span>";
+//        List<String> spans = Regex.find(source, store_regex);
+//        List<String> stores = spans.stream().map(span -> {
+//            span = span.substring(span_prefix.length(), span.lastIndexOf(span_suffix));
+//            return span.replaceFirst(dyn_regexp, "");
+//        }).collect(Collectors.toList());
+//        System.out.println(stores);
     }
 
 
     private static final String string = "string";
 
-    public Integer handlerMobile(SearchCrawlReq req, Gather gather, String url, String html) {
-
+    public Integer handlerMobile(SearchCrawlReq req, Gather gather, String url, byte[] bytes) {
+        // 获取解码后的页面内容
+        String html = getDecode(bytes);
         String title = Convert.toEmpty(Regex.findFirst(html, Regexp.FIND_HTML_TITLE.getCode()), "<title></title>");
         if (string.equalsIgnoreCase(req.getKeyword()) || Bool.isNull(req.getKeyword()) || title.contains(req.getKeyword())) {
 
@@ -90,6 +98,15 @@ public class LunaticCrawlerServiceImpl extends CrawlerServiceImpl {
             }
         }
         return 0;
+    }
+
+    public String getDecode(byte[] bytes) {
+
+        String html = new String(bytes);
+        String meta = Convert.toEmpty(Regex.findFirst(html, Regexp.FIND_HTML_ENCODE.getCode()), "<meta charset=\"UTF-8\">");
+        String[] split = meta.split("charset=\"");
+        String charset = split[1].split("\"")[0];
+        return Quick.exes(x -> new String(bytes, Charset.forName(charset)), x -> html);
     }
 
     private boolean isBlacklist(String url) {
