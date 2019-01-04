@@ -48,7 +48,7 @@ public class LunaticCrawlerServiceImpl extends CrawlerServiceImpl {
         }).collect(Collectors.toList());
         for (int i = 1; i <= stores.size(); i++) {
             String store = stores.get(i);
-            if (store.contains(req.getContent())) {
+            if (store.contains(req.getKeyword())) {
                 return ExceptionUtils.process(String.format("找到你的商品在第%s个%s", i, url));
             }
         }
@@ -67,22 +67,26 @@ public class LunaticCrawlerServiceImpl extends CrawlerServiceImpl {
     }
 
 
-    public Integer handlerMobile(Gather gather, String url, String html) {
+    private static final String string = "string";
+
+    public Integer handlerMobile(SearchCrawlReq req, Gather gather, String url, String html) {
 
         String title = Convert.toEmpty(Regex.findFirst(html, Regexp.FIND_HTML_TITLE.getCode()), "<title></title>");
-        title = title.substring("<title>".length(), title.length() - "</title>".length());
-        List<String> mobiles = Regex.find(html, "([^\\d])((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18([0-3]|[5-9]))|(177))\\d{8}([^\\d])");
-        mobiles = mobiles.stream().map(x -> x.substring(1, x.length() - 1)).distinct().collect(Collectors.toList());
-        List<Map<String, Object>> maps = new ArrayList();
-        if (!Bool.isNull(mobiles) && !isBlacklist(url)) {
-            for (String mobile : mobiles) {
-                Map<String, Object> map = new HashMap(0);
-                map.put("title", title);
-                map.put("mobile", mobile);
-                map.put("url", url);
-                maps.add(map);
+        if (!string.equalsIgnoreCase(req.getKeyword()) && !Bool.isNull(req.getKeyword())) {
+            title = title.substring("<title>".length(), title.length() - "</title>".length());
+            List<String> mobiles = Regex.find(html, "([^\\d])((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18([0-3]|[5-9]))|(177))\\d{8}([^\\d])");
+            mobiles = mobiles.stream().map(x -> x.substring(1, x.length() - 1)).distinct().collect(Collectors.toList());
+            List<Map<String, Object>> maps = new ArrayList();
+            if (!Bool.isNull(mobiles) && !isBlacklist(url)) {
+                for (String mobile : mobiles) {
+                    Map<String, Object> map = new HashMap(0);
+                    map.put("title", title);
+                    map.put("mobile", mobile);
+                    map.put("url", url);
+                    maps.add(map);
+                }
+                return handler(gather.getTab(), maps, gather.getFilters().split(","));
             }
-            return handler(gather.getTab(), maps, gather.getFilters().split(","));
         }
         return 0;
     }

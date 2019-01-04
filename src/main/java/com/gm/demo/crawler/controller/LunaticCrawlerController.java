@@ -78,7 +78,7 @@ public class LunaticCrawlerController extends BaseController {
 
         Integer[] sum = {0};
         Page page = new Page(0, 100);
-        String root = Web.replace(req.getUrl(), req.getKey(), req.getKeyword());
+        String root = Web.replace(req.getUrl(), "q", req.getKeyword());
         Quick.echo(z -> {
             String newUrl = getUrl(root, page, gather);
             HttpResult result = Quick.exec(x -> Http.doGet(newUrl, req.getHeaders(), req.getParams()));
@@ -100,16 +100,14 @@ public class LunaticCrawlerController extends BaseController {
 
         Integer[] sum = {Cn.ZERO};
         String domain = Web.getRootDomain(req.getUrl());
-        String root = Bool.isNull(req.getKeyword()) && "string".equalsIgnoreCase(req.getKeyword()) ?
-                req.getUrl() : Web.replace(req.getUrl(), req.getKey(), req.getKeyword());
-        Quick.loop(root, url -> {
+        Quick.loop(req.getUrl(), url -> {
             String newUrl = getHttp(url.toString());
             String html = "";
             String key = Web.nonArgs(newUrl);
             if (Convert.toEmpty(webExclude.get(key), Cn.ZERO) < Cn.THREE) {
                 HttpResult result = Quick.exec(x -> Http.doGet(newUrl, req.getHeaders(), req.getParams()));
                 html = new String(Convert.toEmpty(result, new HttpResult()).getResult());
-                Integer count = lunaticCrawlerService.handlerMobile(gather, newUrl, html);
+                Integer count = lunaticCrawlerService.handlerMobile(req, gather, newUrl, html);
                 sum[0] += count;
                 if (count <= Cn.ZERO) {
                     int val = Convert.toEmpty(webExclude.get(key), Cn.ZERO);
