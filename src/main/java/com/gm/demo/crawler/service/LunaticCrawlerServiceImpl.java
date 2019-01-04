@@ -103,9 +103,7 @@ public class LunaticCrawlerServiceImpl extends CrawlerServiceImpl {
     public String getDecode(byte[] bytes) {
 
         String html = new String(bytes);
-        String meta = Convert.toEmpty(Regex.findFirst(html, Regexp.FIND_HTML_ENCODE.getCode()), "<meta charset=\"UTF-8\">");
-        String[] split = meta.split("charset=\"");
-        String charset = split[1].split("\"")[0];
+        String charset = Regex.getCharset(html);
         return Quick.exes(x -> new String(bytes, Charset.forName(charset)), x -> html);
     }
 
