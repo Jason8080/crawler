@@ -58,7 +58,9 @@
         </encoder>
     </appender>
 
-    <logger name="com.gm" level="DEBUG" additivity="true"/>
+    <logger name="com.gm" level="info" additivity="true"/>
+    <logger name="com.gm.demo.crawler.dao.mapper" level="error" additivity="false"/>
+    <logger name="org.apache.http.client.protocol" level="error" additivity="false"/>
 
     <root level="WARN">
         <appender-ref ref="STDOUT" />
