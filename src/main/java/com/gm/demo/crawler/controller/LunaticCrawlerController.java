@@ -1,7 +1,7 @@
 package com.gm.demo.crawler.controller;
 
+import com.gm.constant.Cn;
 import com.gm.demo.crawler.dao.model.Gather;
-import com.gm.demo.crawler.entity.req.CrawlReq;
 import com.gm.demo.crawler.entity.req.SearchCrawlReq;
 import com.gm.demo.crawler.service.GatherServiceImpl;
 import com.gm.demo.crawler.service.LunaticCrawlerServiceImpl;
@@ -12,6 +12,7 @@ import com.gm.model.response.JsonResult;
 import com.gm.strong.Rules;
 import com.gm.strong.Str;
 import com.gm.utils.base.Assert;
+import com.gm.utils.base.Bool;
 import com.gm.utils.base.Convert;
 import com.gm.utils.base.Logger;
 import com.gm.utils.ext.Math;
@@ -43,9 +44,9 @@ public class LunaticCrawlerController extends BaseController {
 
     String[] checkResult = {"HTTP 404 Not Found", "验证", "过于频繁"};
 
-    Map<String, Integer> webExclude = new HashMap();
+    private static Map<String, Integer> webExclude = new HashMap();
 
-    String[] urlExclude = {".jpg", ".png", ".gif", ".js", ".css", "down", ".exe", ".zip"};
+    String[] urlExclude = {".jpg", ".png", ".gif", ".js", ".css", "down", ".exe", ".zip", ".dtd"};
 
     @Autowired
     GatherServiceImpl gatherService;
@@ -77,7 +78,7 @@ public class LunaticCrawlerController extends BaseController {
 
         Integer[] sum = {0};
         Page page = new Page(0, 100);
-        String root = Web.replace(req.getUrl(), "q", req.getKeyword());
+        String root = Web.replace(req.getUrl(), req.getKey(), req.getKeyword());
         Quick.echo(z -> {
             String newUrl = getUrl(root, page, gather);
             HttpResult result = Quick.exec(x -> Http.doGet(newUrl, req.getHeaders(), req.getParams()));
@@ -87,7 +88,7 @@ public class LunaticCrawlerController extends BaseController {
             }
             sum[0] += lunaticCrawlerService.handlerGoods(req, gather, newUrl, html);
             int i = sum[0].intValue() / 44;
-            Logger.debug(("gather:   "+i).concat("\n").concat(newUrl));
+            Logger.debug(("gather:   " + i).concat("\n").concat(newUrl));
             // 分页方案
             String parse = Logger.exec(r -> Rules.parse(page, gather.getPage().split(",")[0].split("=")[1]), "赶集分页失败");
             page.setOffset(Math.execute(parse, Integer.class));
@@ -97,34 +98,37 @@ public class LunaticCrawlerController extends BaseController {
 
     private Integer mobilePages(SearchCrawlReq req, Gather gather) {
 
-        Integer[] sum = {0};
+        Integer[] sum = {Cn.ZERO};
         String domain = Web.getRootDomain(req.getUrl());
-        String root = Web.replace(req.getUrl(), "key", req.getKeyword());
+        String root = Bool.isNull(req.getKeyword()) && "string".equalsIgnoreCase(req.getKeyword()) ?
+                req.getUrl() : Web.replace(req.getUrl(), req.getKey(), req.getKeyword());
         Quick.loop(root, url -> {
             String newUrl = getHttp(url.toString());
-            HttpResult result = Quick.exec(x -> Http.doGet(newUrl, req.getHeaders(), req.getParams()));
-            String html = new String(Convert.toEmpty(result, new HttpResult()).getResult());
-            if (new Str(html).contains(checkResult)) {
-                Logger.info("要验证了~");
+            String html = "";
+            String key = Web.nonArgs(newUrl);
+            if (Convert.toEmpty(webExclude.get(key), Cn.ZERO) < Cn.THREE) {
+                HttpResult result = Quick.exec(x -> Http.doGet(newUrl, req.getHeaders(), req.getParams()));
+                html = new String(Convert.toEmpty(result, new HttpResult()).getResult());
+                Integer count = lunaticCrawlerService.handlerMobile(gather, newUrl, html);
+                sum[0] += count;
+                if (count <= Cn.ZERO) {
+                    int val = Convert.toEmpty(webExclude.get(key), Cn.ZERO);
+                    webExclude.put(key, ++val);
+                } else if (count > Cn.TWO * Cn.FOUR * Cn.TWO) {
+                    Logger.debug("Exceed:   ".concat(count + "").concat("\n").concat(newUrl));
+                } else {
+                    Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
+                }
             }
-            Integer count = lunaticCrawlerService.handlerMobile(gather, newUrl, html);
-            if (count <= 0) {
-                String key = Web.nonArgs(newUrl);
-                int val = Convert.toEmpty(webExclude.get(key), 0);
-                webExclude.put(key, ++val);
-            }
-            sum[0] += count;
-            Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
             List<String> urls = Regex.find(html, Regexp.FIND_URL.getCode());
             for (int i = 0; i < urls.size(); i++) {
                 String s = urls.get(i);
                 s = s.replaceAll("amp;", "");
                 s = s.trim();
                 urls.set(i, s);
-                if (!new Str(s).contains(gather.getData().split(","))
-                        || !new Str(s).contains(domain)
+                if (!new Str(s).contains(domain)
                         || new Str(s).contains(urlExclude)
-                        || Convert.toEmpty(webExclude.get(getHttp(Web.nonArgs(s))), 0) > 5) {
+                        || Convert.toEmpty(webExclude.get(getHttp(Web.nonArgs(s))), Cn.ZERO) > Cn.TWO) {
                     urls.remove(i--);
                 }
             }

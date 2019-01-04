@@ -58,7 +58,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.gm" level="trace" additivity="true"/>
+    <logger name="com.gm" level="DEBUG" additivity="true"/>
 
     <root level="WARN">
         <appender-ref ref="STDOUT" />

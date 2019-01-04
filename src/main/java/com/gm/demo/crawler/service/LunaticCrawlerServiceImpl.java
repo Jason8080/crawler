@@ -48,7 +48,7 @@ public class LunaticCrawlerServiceImpl extends CrawlerServiceImpl {
         }).collect(Collectors.toList());
         for (int i = 1; i <= stores.size(); i++) {
             String store = stores.get(i);
-            if (store.contains(req.getTitle())) {
+            if (store.contains(req.getContent())) {
                 return ExceptionUtils.process(String.format("找到你的商品在第%s个%s", i, url));
             }
         }
