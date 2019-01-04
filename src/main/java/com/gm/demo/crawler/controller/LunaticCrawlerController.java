@@ -113,9 +113,9 @@ public class LunaticCrawlerController extends BaseController {
                     int val = Convert.toEmpty(webExclude.get(key), Cn.ZERO);
                     webExclude.put(key, ++val);
                 } else if (count > Cn.TWO * Cn.FOUR * Cn.TWO) {
-                    Logger.debug("Exceed:   ".concat(count + "").concat("\n").concat(newUrl));
+                    Logger.info("Exceed:   ".concat(count + "").concat("\n").concat(newUrl));
                 } else {
-                    Logger.debug("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
+                    Logger.info("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
                 }
             }
             List<String> urls = Regex.find(new String(bytes), Regexp.FIND_URL.getCode());
