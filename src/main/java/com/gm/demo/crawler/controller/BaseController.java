@@ -3,6 +3,7 @@ package com.gm.demo.crawler.controller;
 import com.gm.demo.crawler.dao.model.Gather;
 import com.gm.strong.Rules;
 import com.gm.utils.ext.Web;
+import com.gm.utils.third.Http;
 import lombok.Data;
 
 /**
@@ -40,6 +41,7 @@ public class BaseController {
 
 
     protected String getUrl(String url, Page page, Gather gather) {
+
         String[] split = gather.getPage().split(",");
         if (split.length > 0) {
             String name = split[0].split("=")[0];
@@ -56,6 +58,9 @@ public class BaseController {
 
     protected String getHttp(String url) {
 
-        return url.startsWith("http") ? url : "http:".concat(url);
+        if (url.startsWith(Http.HTTPS) || url.startsWith(Http.HTTP_)) {
+            return url;
+        }
+        return "http:".concat(url);
     }
 }
