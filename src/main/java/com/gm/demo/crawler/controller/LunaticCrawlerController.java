@@ -12,7 +12,6 @@ import com.gm.model.response.JsonResult;
 import com.gm.strong.Rules;
 import com.gm.strong.Str;
 import com.gm.utils.base.Assert;
-import com.gm.utils.base.Bool;
 import com.gm.utils.base.Convert;
 import com.gm.utils.base.Logger;
 import com.gm.utils.ext.Math;
@@ -99,7 +98,7 @@ public class LunaticCrawlerController extends BaseController {
     private Integer mobilePages(SearchCrawlReq req, Gather gather) {
 
         Integer[] sum = {Cn.ZERO};
-        String domain = Web.getRootDomain(req.getUrl());
+        String domain = req.getUrl().substring(0, req.getUrl().lastIndexOf("/"));
         Quick.loop(req.getUrl(), url -> {
             String newUrl = getHttp(url.toString());
             byte[] bytes = {};
