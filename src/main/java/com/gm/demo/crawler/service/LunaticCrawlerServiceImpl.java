@@ -100,7 +100,7 @@ public class LunaticCrawlerServiceImpl extends CrawlerServiceImpl {
         return 0;
     }
 
-    public String getDecode(byte[] bytes) {
+    public synchronized String getDecode(byte[] bytes) {
 
         String html = new String(bytes);
         String charset = Regex.getCharset(html);
