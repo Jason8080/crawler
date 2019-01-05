@@ -118,20 +118,23 @@ public class LunaticCrawlerController extends BaseController {
                     Logger.info("gather:   ".concat(sum[0].toString()).concat("\n").concat(newUrl));
                 }
             }
-            List<String> urls = Regex.find(new String(bytes), Regexp.FIND_URL.getCode());
-            for (int i = 0; i < urls.size(); i++) {
-                String s = urls.get(i);
-                s = s.replaceAll("amp;", "");
-                s = s.trim();
-                urls.set(i, s);
-                if (!new Str(s).contains(layer)
-                        || new Str(s).contains(urlExclude)
-                        || Convert.toEmpty(webExclude.get(getHttp(Web.nonArgs(s))), Cn.ZERO) > Cn.TWO) {
-                    urls.remove(i--);
-                }
-            }
-            return urls;
+            return getFilters(layer, Regex.find(new String(bytes), Regexp.FIND_URL.getCode()));
         });
         return sum[0];
+    }
+
+    private List<String> getFilters(String layer, List<String> urls) {
+
+        for (int i = 0; i < urls.size(); i++) {
+            String url = urls.get(i);
+            if (!new Str(url).contains(layer)
+                    || new Str(url).contains(urlExclude)
+                    || Convert.toEmpty(webExclude.get(getHttp(Web.nonArgs(url))), Cn.ZERO) > Cn.TWO) {
+                urls.remove(i--);
+                continue;
+            }
+            urls.set(i, url.trim().replace("amp;", ""));
+        }
+        return urls;
     }
 }
