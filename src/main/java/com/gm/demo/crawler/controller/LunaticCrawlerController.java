@@ -98,7 +98,8 @@ public class LunaticCrawlerController extends BaseController {
     private Integer mobilePages(SearchCrawlReq req, Gather gather) {
 
         Integer[] sum = {Cn.ZERO};
-        String layer = Web.getLayer(req.getUrl());
+//        String layer = Web.getLayer(req.getUrl()); 控制层级
+        String layer = Web.getRootDomain(req.getUrl());
         Quick.loop(req.getUrl(), url -> {
             String newUrl = getHttp(url.toString());
             byte[] bytes = {};
