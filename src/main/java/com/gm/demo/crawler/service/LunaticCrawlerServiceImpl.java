@@ -86,7 +86,8 @@ public class LunaticCrawlerServiceImpl extends CrawlerServiceImpl {
             List<String> mobiles = Regex.find(html, "([^\\d])((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18([0-3]|[5-9]))|(177))\\d{8}([^\\d])");
             mobiles = mobiles.stream().map(x -> x.substring(1, x.length() - 1)).distinct().collect(Collectors.toList());
             List<Map<String, Object>> maps = new ArrayList();
-            if (!Bool.isNull(mobiles) && !isBlacklist(url)) {
+            if (!Bool.isNull(mobiles)
+                /* && !isBlacklist(url)*/) {
                 for (String mobile : mobiles) {
                     Map<String, Object> map = new HashMap(0);
                     map.put("title", title);
