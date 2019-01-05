@@ -100,7 +100,7 @@ public class LunaticCrawlerController extends BaseController {
         Integer[] sum = {Cn.ZERO};
 //        String layer = Web.getLayer(req.getUrl()); 控制层级
         String layer = Web.getRootDomain(req.getUrl());
-        Quick.loop(req.getUrl(), url -> {
+        Quick.async(req.getUrl(), url -> {
             String newUrl = getHttp(url.toString());
             byte[] bytes = {};
             String key = Web.nonArgs(newUrl);
