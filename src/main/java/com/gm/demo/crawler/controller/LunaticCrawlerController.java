@@ -109,7 +109,7 @@ public class LunaticCrawlerController extends BaseController {
                 bytes = Convert.toEmpty(result, new HttpResult()).getResult();
                 Integer count = lunaticCrawlerService.handlerMobile(req, gather, newUrl, bytes);
                 sum[0] += count;
-                if (count <= Cn.ZERO && !req.getUrl().equalsIgnoreCase(key)) {
+                if (count <= Cn.ZERO) {
                     int val = Convert.toEmpty(webExclude.get(key), Cn.ZERO);
                     webExclude.put(key, ++val);
                 } else if (count > Cn.TWO * Cn.FOUR * Cn.TWO) {
